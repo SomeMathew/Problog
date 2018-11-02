@@ -23,15 +23,26 @@ public class POC {
 		t = new DatalogTokenizer(new StringReader(program));
 		ast = DatalogParser.parseProgram(t);
 		
-		validProgram = new DatalogValidator().validate(ast);
+		validProgram = new DatalogValidator().withUncertainty().validate(ast);
 		System.out.println(ast);
+		
+		program = "edge(0,1) : 0.5. edge(1,2) : 1.25. tc(X,Y) :- edge(X,Y) : 0.1."
+				+ "tc(X,Y) :- edge(X,Z), tc(Z,Y) : 0.25. cycle :- tc(X,X) : 0.3.";
+		t = new DatalogTokenizer(new StringReader(program));
+		ast = DatalogParser.parseProgram(t);
+		
+		try {
+			validProgram = new DatalogValidator().withUncertainty().validate(ast);
+		} catch (DatalogValidationException e) {
+			System.err.println("INVALID: " + e.getMessage() + "\nClauses: " + ast);
+		}
 		
 		
 		program = "edge(0,1). edge(1,2). tc(X,Y) :- edge(X,Y)."
 				+ "tc(X,Y) :- edge(X,Z), tc(Z,Y). cycle :- tc(X,X).";
 		t = new DatalogTokenizer(new StringReader(program));
 		ast = DatalogParser.parseProgram(t);
-		validProgram = new DatalogValidator().validate(ast);
+		validProgram = new DatalogValidator().withUncertainty().validate(ast);
 		System.out.println(ast);
 		
 		
@@ -40,9 +51,9 @@ public class POC {
 		t = new DatalogTokenizer(new StringReader(program));
 		ast = DatalogParser.parseProgram(t);
 		try {
-			validProgram = new DatalogValidator().validate(ast);
+			validProgram = new DatalogValidator().withUncertainty().validate(ast);
 		} catch (DatalogValidationException e) {
-			System.out.println("INVALID: " + e.getMessage() + ", Clauses: " + ast);
+			System.err.println("INVALID: " + e.getMessage() + "\nClauses: " + ast);
 		}
 
 		String query = "lk_1(a,X)?";

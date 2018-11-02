@@ -54,6 +54,7 @@ public class DatalogValidator {
 	private boolean allowBinaryUnification;
 	private boolean allowBinaryDisunification;
 	private boolean allowNegatedBodyAtom;
+	private boolean allowUncertainty;
 
 	public DatalogValidator withBinaryUnificationInRuleBody() {
 		this.allowBinaryUnification = true;
@@ -69,6 +70,11 @@ public class DatalogValidator {
 		this.allowNegatedBodyAtom = true;
 		return this;
 	}
+	
+	public DatalogValidator withUncertainty() {
+		this.allowUncertainty = true;
+		return this;
+	}
 
 	public UnstratifiedProgram validate(Set<Clause> program) throws DatalogValidationException {
 		return validate(program, false);
@@ -79,7 +85,7 @@ public class DatalogValidator {
 		for (Clause clause : program) {
 			rewrittenClauses.add(checkRule(clause));
 		}
-//		rewrittenClauses.add(new ValidClause(True.getTrueAtom(), Collections.emptyList()));
+		rewrittenClauses.add(new ValidClause(True.getTrueAtom(), Collections.emptyList()));
 
 		Set<ValidClause> rules = new HashSet<>();
 		Set<ValidClause> bodilessClauses = new HashSet<>();
@@ -197,6 +203,11 @@ public class DatalogValidator {
 		List<Premise> newBody = new ArrayList<>(clause.getBody());
 		if (!hasPositiveAtom.value && !newBody.isEmpty()) {
 			newBody.add(0, True.getTrueAtom());
+		}
+		
+		if (this.allowUncertainty && (clause.getUncertainty() > 1 || clause.getUncertainty() < 0)) {
+			throw new DatalogValidationException("The probability for uncertainty must be in [0,1] but was found to be " + clause.getUncertainty()
+			+ " in the rule " + clause + ".");
 		}
 
 		return new ValidClause(clause.getHead(), newBody);
