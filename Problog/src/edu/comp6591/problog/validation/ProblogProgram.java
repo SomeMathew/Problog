@@ -1,10 +1,10 @@
-package edu.comp6591.problog.validator;
+package edu.comp6591.problog.validation;
 
 import java.util.List;
 import java.util.Set;
 
 import abcdatalog.ast.PredicateSym;
-import edu.comp6591.problog.validator.ProblogValidator.ValidProblogClause;
+import edu.comp6591.problog.validation.ProblogValidator.ValidProblogClause;
 
 /**
  * A Problog program where the rules and facts have been validated

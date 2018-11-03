@@ -4,18 +4,15 @@ import java.util.Set;
 
 import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
-import abcdatalog.ast.validation.DatalogValidationException;
-import abcdatalog.engine.DatalogEngine;
+import edu.comp6591.problog.validation.ProblogValidationException;
 
-public class ProblogEngine implements DatalogEngine {
+public class ProblogEngine {
 
-	@Override
-	public void init(Set<Clause> program) throws DatalogValidationException {
+	public void init(Set<Clause> program) throws ProblogValidationException {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public Set<PositiveAtom> query(PositiveAtom q) {
 		// TODO Auto-generated method stub
 		return null;

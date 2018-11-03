@@ -5,11 +5,11 @@ import java.util.Set;
 
 import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
-import abcdatalog.ast.validation.DatalogValidationException;
 import abcdatalog.parser.DatalogParser;
 import abcdatalog.parser.DatalogTokenizer;
-import edu.comp6591.problog.validator.ProblogProgram;
-import edu.comp6591.problog.validator.ProblogValidator;
+import edu.comp6591.problog.validation.ProblogProgram;
+import edu.comp6591.problog.validation.ProblogValidationException;
+import edu.comp6591.problog.validation.ProblogValidator;
 
 public class POC {
 	public static void main(String[] args) throws Exception {
@@ -44,7 +44,7 @@ public class POC {
 
 		try {
 			validProgram = new ProblogValidator().withUncertainty().validate(ast);
-		} catch (DatalogValidationException e) {
+		} catch (ProblogValidationException e) {
 			System.out.println("INVALID: " + e.getMessage() + "\nClauses: " + ast);
 		}
 
@@ -62,7 +62,7 @@ public class POC {
 		ast = DatalogParser.parseProgram(t);
 		try {
 			validProgram = new ProblogValidator().withUncertainty().validate(ast);
-		} catch (DatalogValidationException e) {
+		} catch (ProblogValidationException e) {
 			System.out.println("INVALID: " + e.getMessage() + "\nClauses: " + ast);
 		}
 

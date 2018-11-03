@@ -4,9 +4,7 @@ import java.util.Set;
 
 import abcdatalog.ast.Clause;
 import abcdatalog.ast.PredicateSym;
-import abcdatalog.ast.validation.DatalogValidationException;
-import abcdatalog.engine.bottomup.EvalManager;
-import abcdatalog.executor.DatalogListener;
+import edu.comp6591.problog.validation.ProblogValidationException;
 
 public class ProblogExecutor {
 	/**
@@ -15,10 +13,10 @@ public class ProblogExecutor {
 	 */
 	private volatile boolean isInitialized = false, isRunning = false;
 
-	private volatile EvalManager evalManager;
+	private volatile UncertainNaiveEvalManager evalManager;
 
-	public synchronized void initialize(Set<Clause> program, EvalManager evalManager)
-			throws DatalogValidationException {
+	public synchronized void initialize(Set<Clause> program)
+			throws ProblogValidationException {
 		if (this.isRunning) {
 			throw new IllegalStateException("Cannot initialize an executor that is already running).");
 		}
@@ -26,7 +24,7 @@ public class ProblogExecutor {
 			throw new IllegalStateException("Executor already initialized.");
 		}
 
-		this.evalManager = evalManager;
+		this.evalManager = new UncertainNaiveEvalManager();
 		this.evalManager.initialize(program);
 		this.isInitialized = true;
 	}
@@ -40,10 +38,5 @@ public class ProblogExecutor {
 		}
 		this.evalManager.eval();
 		this.isRunning = true;
-	}
-
-	public void registerListener(PredicateSym p, DatalogListener listener) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("STUB: registerListner is not currently supported.");
 	}
 }
