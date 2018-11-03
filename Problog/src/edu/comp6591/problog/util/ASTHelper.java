@@ -17,6 +17,18 @@ import java.util.Set;
 public class ASTHelper {
 	
 	/**
+	 * Convert data string to AST model
+	 * @param data
+	 * @return ProblogProgram
+	 * @throws DatalogParseException
+	 */
+	public static Set<Clause> getClauses(String data) throws DatalogParseException {
+		StringReader sr = new StringReader(data);
+		DatalogTokenizer dt = new DatalogTokenizer(sr);
+		return DatalogParser.parseProgram(dt);
+    }
+	
+	/**
 	 * Convert data string to AST database
 	 * @param data
 	 * @return ProblogProgram
@@ -24,10 +36,7 @@ public class ASTHelper {
 	 * @throws ProblogValidationException 
 	 */
 	public static ProblogProgram getProgram(String data) throws DatalogParseException, ProblogValidationException {
-		StringReader sr = new StringReader(data);
-		DatalogTokenizer dt = new DatalogTokenizer(sr);
-		
-		Set<Clause> ast = DatalogParser.parseProgram(dt);
+		Set<Clause> ast = getClauses(data);
 		return new ProblogValidator().withUncertainty().validate(ast);
     }
 	
@@ -44,4 +53,14 @@ public class ASTHelper {
 		
 		return DatalogParser.parseQuery(dt);
     }
+	
+	/**
+	 * Convert AST result(s) to string (either list of atoms or T/F)
+	 * @param goal
+	 * @param results
+	 * @return result(s) string
+	 */
+	public static String setResults(PositiveAtom goal, Set<PositiveAtom> results) {
+		throw new UnsupportedOperationException("ASTHelper 'setResults' method not supported yet.");
+	}
 }

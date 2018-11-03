@@ -17,8 +17,7 @@ public class FileHelper {
 	 * @throws FileNotFoundException
 	 * @throws IOException 
 	 */
-	public static String getFile(String path) throws FileNotFoundException, IOException
-    {
+	public static String getFile(String path) throws FileNotFoundException, IOException {
 		StringBuilder content = new StringBuilder();
         FileReader fr = new FileReader(path);
 		
