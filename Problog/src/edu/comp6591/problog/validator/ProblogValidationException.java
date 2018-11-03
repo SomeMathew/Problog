@@ -12,26 +12,26 @@
  *
  * See README for contributors.
  ******************************************************************************/
-package abcdatalog.ast.validation;
+package edu.comp6591.problog.validator;
 
 @SuppressWarnings("serial")
-public class DatalogValidationException extends Exception {
+public class ProblogValidationException extends Exception {
 
-	public DatalogValidationException() {}
+	public ProblogValidationException() {}
 
-	public DatalogValidationException(String message) {
+	public ProblogValidationException(String message) {
 		super(message);
 	}
 
-	public DatalogValidationException(Throwable cause) {
+	public ProblogValidationException(Throwable cause) {
 		super(cause);
 	}
 
-	public DatalogValidationException(String message, Throwable cause) {
+	public ProblogValidationException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
-	public DatalogValidationException(String message, Throwable cause, boolean enableSuppression,
+	public ProblogValidationException(String message, Throwable cause, boolean enableSuppression,
 			boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

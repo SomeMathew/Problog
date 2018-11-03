@@ -42,7 +42,6 @@ import abcdatalog.ast.Premise;
 import abcdatalog.ast.Term;
 import abcdatalog.ast.TermHelpers;
 import abcdatalog.ast.Variable;
-import abcdatalog.ast.validation.DatalogValidationException;
 import abcdatalog.ast.visitors.CrashPremiseVisitor;
 import abcdatalog.ast.visitors.HeadVisitor;
 import abcdatalog.ast.visitors.HeadVisitorBuilder;
@@ -86,12 +85,12 @@ public class ProblogValidator {
 		return this;
 	}
 
-	public ProblogProgram validate(Set<Clause> program) throws DatalogValidationException {
+	public ProblogProgram validate(Set<Clause> program) throws ProblogValidationException {
 		return validate(program, false);
 	}
 
 	public ProblogProgram validate(Set<Clause> program, boolean treatIdbFactsAsClauses)
-			throws DatalogValidationException {
+			throws ProblogValidationException {
 		Set<ValidProblogClause> rewrittenClauses = new HashSet<>();
 		for (Clause clause : program) {
 			rewrittenClauses.add(checkRule(clause));
@@ -143,7 +142,7 @@ public class ProblogValidator {
 		return new Program(rules, initialFacts, edbPredicateSymbols, idbPredicateSymbols);
 	}
 
-	private ValidProblogClause checkRule(Clause clause) throws DatalogValidationException {
+	private ValidProblogClause checkRule(Clause clause) throws ProblogValidationException {
 		Set<Variable> boundVars = new HashSet<>();
 		Set<Variable> possiblyUnboundVars = new HashSet<>();
 		TermUnifier subst = new UnionFindBasedUnifier();
@@ -157,19 +156,19 @@ public class ProblogValidator {
 		TermHelpers.fold(HeadHelpers.forcePositiveAtom(clause.getHead()).getArgs(), tv, possiblyUnboundVars);
 
 		Box<Boolean> hasPositiveAtom = new Box<>(false);
-		PremiseVisitor<DatalogValidationException, DatalogValidationException> cv = new CrashPremiseVisitor<DatalogValidationException, DatalogValidationException>() {
+		PremiseVisitor<ProblogValidationException, ProblogValidationException> cv = new CrashPremiseVisitor<ProblogValidationException, ProblogValidationException>() {
 
 			@Override
-			public DatalogValidationException visit(PositiveAtom atom, DatalogValidationException e) {
+			public ProblogValidationException visit(PositiveAtom atom, ProblogValidationException e) {
 				TermHelpers.fold(atom.getArgs(), tv, boundVars);
 				hasPositiveAtom.value = true;
 				return e;
 			}
 
 			@Override
-			public DatalogValidationException visit(BinaryUnifier u, DatalogValidationException e) {
+			public ProblogValidationException visit(BinaryUnifier u, ProblogValidationException e) {
 				if (!allowBinaryUnification) {
-					return new DatalogValidationException("Binary unification is not allowed: ");
+					return new ProblogValidationException("Binary unification is not allowed: ");
 				}
 				TermHelpers.fold(u.getArgsIterable(), tv, possiblyUnboundVars);
 				TermHelpers.unify(u.getLeft(), u.getRight(), subst);
@@ -177,18 +176,18 @@ public class ProblogValidator {
 			}
 
 			@Override
-			public DatalogValidationException visit(BinaryDisunifier u, DatalogValidationException e) {
+			public ProblogValidationException visit(BinaryDisunifier u, ProblogValidationException e) {
 				if (!allowBinaryDisunification) {
-					return new DatalogValidationException("Binary disunification is not allowed: ");
+					return new ProblogValidationException("Binary disunification is not allowed: ");
 				}
 				TermHelpers.fold(u.getArgsIterable(), tv, possiblyUnboundVars);
 				return e;
 			}
 
 			@Override
-			public DatalogValidationException visit(NegatedAtom atom, DatalogValidationException e) {
+			public ProblogValidationException visit(NegatedAtom atom, ProblogValidationException e) {
 				if (!allowNegatedBodyAtom) {
-					return new DatalogValidationException("Negated body atoms are not allowed: ");
+					return new ProblogValidationException("Negated body atoms are not allowed: ");
 				}
 				TermHelpers.fold(atom.getArgs(), tv, possiblyUnboundVars);
 				return e;
@@ -197,7 +196,7 @@ public class ProblogValidator {
 		};
 
 		for (Premise c : clause.getBody()) {
-			DatalogValidationException e = c.accept(cv, null);
+			ProblogValidationException e = c.accept(cv, null);
 			if (e != null) {
 				throw e;
 			}
@@ -205,7 +204,7 @@ public class ProblogValidator {
 
 		for (Variable x : possiblyUnboundVars) {
 			if (!boundVars.contains(x) && !(subst.get(x) instanceof Constant)) {
-				throw new DatalogValidationException("Every variable in a rule must be bound, but " + x
+				throw new ProblogValidationException("Every variable in a rule must be bound, but " + x
 						+ " is not bound in the rule " + clause
 						+ " A variable X is bound if 1) it appears in a positive (non-negated) body atom, or 2) it is explicitly unified with a constant (e.g., X=a) or with a variable that is bound (e.g., X=Y, where Y is bound).");
 			}
@@ -217,7 +216,7 @@ public class ProblogValidator {
 		}
 
 		if (this.allowUncertainty && (clause.getUncertainty() > 1 || clause.getUncertainty() < 0)) {
-			throw new DatalogValidationException("The probability for uncertainty must be in [0,1] but was found to be "
+			throw new ProblogValidationException("The probability for uncertainty must be in [0,1] but was found to be "
 					+ clause.getUncertainty() + " in the rule " + clause + ".");
 		}
 

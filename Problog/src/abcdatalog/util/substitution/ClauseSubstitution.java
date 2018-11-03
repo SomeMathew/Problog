@@ -36,17 +36,12 @@ import abcdatalog.ast.Premise;
 import abcdatalog.ast.Term;
 import abcdatalog.ast.TermHelpers;
 import abcdatalog.ast.Variable;
-import abcdatalog.ast.validation.DatalogValidationException;
-import abcdatalog.ast.validation.DatalogValidator;
-import abcdatalog.ast.validation.DatalogValidator.ValidClause;
-import abcdatalog.ast.validation.UnstratifiedProgram;
 import abcdatalog.ast.visitors.CrashPremiseVisitor;
 import abcdatalog.ast.visitors.PremiseVisitor;
 import abcdatalog.ast.visitors.TermVisitor;
 import abcdatalog.ast.visitors.TermVisitorBuilder;
 import abcdatalog.engine.bottomup.AnnotatedAtom;
-import abcdatalog.engine.bottomup.SemiNaiveClauseAnnotator;
-import abcdatalog.engine.bottomup.SemiNaiveClauseAnnotator.SemiNaiveClause;
+import edu.comp6591.problog.validator.ProblogValidationException;
 
 /**
  * This is a substitution tailor-made for a particular clause. Mappings can only
@@ -62,58 +57,58 @@ public class ClauseSubstitution implements ConstOnlySubstitution {
 	private int pos = 0;
 	private final int bodySize;
 
-	public ClauseSubstitution(SemiNaiveClause c) {
-		Map<Variable, Integer> idx = new HashMap<>();
-		List<Integer> idxByConj = new ArrayList<>();
-
-		TermVisitor<Integer, Integer> tv = (new TermVisitorBuilder<Integer, Integer>()).onVariable((x, curCount) -> {
-			if (idx.get(x) == null) {
-				idx.put(x, curCount);
-				return curCount + 1;
-			}
-			return curCount;
-		}).or((x, curCount) -> curCount);
-
-		PremiseVisitor<Integer, Integer> varFinder = new CrashPremiseVisitor<Integer, Integer>() {
-			@Override
-			public Integer visit(AnnotatedAtom atom, Integer count) {
-				idxByConj.add(count);
-				return TermHelpers.fold(atom.getArgs(), tv, count);
-			}
-
-			@Override
-			public Integer visit(BinaryUnifier u, Integer count) {
-				idxByConj.add(count);
-				return TermHelpers.fold(u.getArgsIterable(), tv, count);
-			}
-
-			@Override
-			public Integer visit(BinaryDisunifier u, Integer count) {
-				idxByConj.add(count);
-				return TermHelpers.fold(u.getArgsIterable(), tv, count);
-			}
-
-			@Override
-			public Integer visit(NegatedAtom atom, Integer count) {
-				idxByConj.add(count);
-				return TermHelpers.fold(atom.getArgs(), tv, count);
-			}
-		};
-
-		int count = 0;
-		for (Premise conj : c.getBody()) {
-			count = conj.accept(varFinder, count);
-		}
-
-		this.subst = new Constant[count];
-		this.index = idx;
-		this.bodySize = c.getBody().size();
-		this.indexByConj = new int[this.bodySize];
-		Iterator<Integer> iter = idxByConj.iterator();
-		for (int i = 0; i < this.bodySize; ++i) {
-			this.indexByConj[i] = iter.next();
-		}
-	}
+//	public ClauseSubstitution(SemiNaiveClause c) {
+//		Map<Variable, Integer> idx = new HashMap<>();
+//		List<Integer> idxByConj = new ArrayList<>();
+//
+//		TermVisitor<Integer, Integer> tv = (new TermVisitorBuilder<Integer, Integer>()).onVariable((x, curCount) -> {
+//			if (idx.get(x) == null) {
+//				idx.put(x, curCount);
+//				return curCount + 1;
+//			}
+//			return curCount;
+//		}).or((x, curCount) -> curCount);
+//
+//		PremiseVisitor<Integer, Integer> varFinder = new CrashPremiseVisitor<Integer, Integer>() {
+//			@Override
+//			public Integer visit(AnnotatedAtom atom, Integer count) {
+//				idxByConj.add(count);
+//				return TermHelpers.fold(atom.getArgs(), tv, count);
+//			}
+//
+//			@Override
+//			public Integer visit(BinaryUnifier u, Integer count) {
+//				idxByConj.add(count);
+//				return TermHelpers.fold(u.getArgsIterable(), tv, count);
+//			}
+//
+//			@Override
+//			public Integer visit(BinaryDisunifier u, Integer count) {
+//				idxByConj.add(count);
+//				return TermHelpers.fold(u.getArgsIterable(), tv, count);
+//			}
+//
+//			@Override
+//			public Integer visit(NegatedAtom atom, Integer count) {
+//				idxByConj.add(count);
+//				return TermHelpers.fold(atom.getArgs(), tv, count);
+//			}
+//		};
+//
+//		int count = 0;
+//		for (Premise conj : c.getBody()) {
+//			count = conj.accept(varFinder, count);
+//		}
+//
+//		this.subst = new Constant[count];
+//		this.index = idx;
+//		this.bodySize = c.getBody().size();
+//		this.indexByConj = new int[this.bodySize];
+//		Iterator<Integer> iter = idxByConj.iterator();
+//		for (int i = 0; i < this.bodySize; ++i) {
+//			this.indexByConj[i] = iter.next();
+//		}
+//	}
 
 	private ClauseSubstitution(Constant[] subst, Map<Variable, Integer> index, int[] indexByConj, int pos,
 			int bodySize) {
