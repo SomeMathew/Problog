@@ -3,7 +3,6 @@ package edu.comp6591.problog;
 import java.util.Set;
 
 import abcdatalog.ast.Clause;
-import abcdatalog.util.datastructures.IndexableFactCollection;
 import edu.comp6591.problog.validation.ProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 import edu.comp6591.problog.validation.ProblogValidator;
@@ -27,9 +26,9 @@ public class UncertainNaiveEvalManager {
 
 	}
 
-	public IndexableFactCollection eval() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	public IndexableFactCollection eval() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 }

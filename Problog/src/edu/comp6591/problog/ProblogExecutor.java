@@ -36,7 +36,7 @@ public class ProblogExecutor {
 		if (!this.isInitialized) {
 			throw new IllegalStateException("Executor has not been initialized.");
 		}
-		this.evalManager.eval();
+//		this.evalManager.eval(); TODO readd this when we have a struct
 		this.isRunning = true;
 	}
 }
