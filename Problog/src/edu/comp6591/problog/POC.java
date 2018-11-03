@@ -6,8 +6,6 @@ import java.util.Set;
 import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
 import abcdatalog.ast.validation.DatalogValidationException;
-import abcdatalog.ast.validation.DatalogValidator;
-import abcdatalog.ast.validation.UnstratifiedProgram;
 import abcdatalog.parser.DatalogParser;
 import abcdatalog.parser.DatalogTokenizer;
 import edu.comp6591.problog.validator.ProblogProgram;
