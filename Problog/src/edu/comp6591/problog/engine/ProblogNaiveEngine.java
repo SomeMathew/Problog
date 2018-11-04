@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * Naive algorithm to process the Problog database
  */
-public class ProblogNaiveEngine implements IProblogEngine {
+public class ProblogNaiveEngine extends ProblogEngineBase {
 	
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint

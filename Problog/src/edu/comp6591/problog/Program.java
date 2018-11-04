@@ -14,7 +14,7 @@ public class Program {
 	public static void main(String[] args) {
 		try {
 			Scanner scan = new Scanner(System.in);
-
+			
 			System.out.println("Please enter the mode of the processing engine (1 for naive, 2 for semi-naive):");
 			String mode = scan.nextLine();
 			
@@ -23,7 +23,7 @@ public class Program {
 			
 			System.out.println("Please enter the path of the file containing the initial facts and rules:");
 			String path = scan.nextLine();
-
+			
 			String data = FileHelper.getFile(path);
 			Set<Clause> clauses = ASTHelper.getClauses(data);
 			engine.init(clauses);
