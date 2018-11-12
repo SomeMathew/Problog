@@ -85,20 +85,15 @@ public class ProblogValidator {
 		return this;
 	}
 
-	public ProblogProgram validate(Set<Clause> program) throws ProblogValidationException {
-		return validate(program, false);
-	}
-
-	public ProblogProgram validate(Set<Clause> program, boolean treatIdbFactsAsClauses)
-			throws ProblogValidationException {
-		Set<ValidProblogClause> rewrittenClauses = new HashSet<>();
+	public ProblogProgram validate(List<Clause> program) throws ProblogValidationException {
+		List<ValidProblogClause> rewrittenClauses = new LinkedList<>();
 		for (Clause clause : program) {
 			rewrittenClauses.add(checkRule(clause));
 		}
 		rewrittenClauses.add(new ValidProblogClause(True.getTrueAtom(), Collections.emptyList()));
 
-		Set<ValidProblogClause> rules = new HashSet<>();
-		Set<ValidProblogClause> bodilessClauses = new HashSet<>();
+		List<ValidProblogClause> rules = new LinkedList<>();
+		List<ValidProblogClause> initialFacts = new LinkedList<>();
 
 		Set<PredicateSym> edbPredicateSymbols = new HashSet<>();
 		Set<PredicateSym> idbPredicateSymbols = new HashSet<>();
@@ -117,7 +112,7 @@ public class ProblogValidator {
 			PositiveAtom head = cl.getHead().accept(getHeadAsAtom, null);
 			List<Premise> body = cl.getBody();
 			if (body.isEmpty()) {
-				bodilessClauses.add(cl);
+				initialFacts.add(cl);
 				edbPredicateSymbols.add(head.getPred());
 			} else {
 				idbPredicateSymbols.add(head.getPred());
@@ -128,18 +123,10 @@ public class ProblogValidator {
 			}
 		}
 
-		List<ValidProblogClause> initialFacts = new LinkedList<>();
 		edbPredicateSymbols.removeAll(idbPredicateSymbols);
-		for (ValidProblogClause cl : bodilessClauses) {
-			PositiveAtom head = HeadHelpers.forcePositiveAtom(cl.getHead());
-			if (treatIdbFactsAsClauses && idbPredicateSymbols.contains(head.getPred())) {
-				rules.add(cl);
-			} else {
-				initialFacts.add(cl);
-			}
-		}
 
 		return new Program(rules, initialFacts, edbPredicateSymbols, idbPredicateSymbols);
+
 	}
 
 	private ValidProblogClause checkRule(Clause clause) throws ProblogValidationException {
@@ -224,12 +211,12 @@ public class ProblogValidator {
 	}
 
 	private static final class Program implements ProblogProgram {
-		private final Set<ValidProblogClause> rules;
+		private final List<ValidProblogClause> rules;
 		private final List<ValidProblogClause> initialFacts;
 		private final Set<PredicateSym> edbPredicateSymbols;
 		private final Set<PredicateSym> idbPredicateSymbols;
 
-		public Program(Set<ValidProblogClause> rules, List<ValidProblogClause> initialFacts,
+		public Program(List<ValidProblogClause> rules, List<ValidProblogClause> initialFacts,
 				Set<PredicateSym> edbPredicateSymbols, Set<PredicateSym> idbPredicateSymbols) {
 			this.rules = rules;
 			this.initialFacts = initialFacts;
@@ -238,7 +225,7 @@ public class ProblogValidator {
 		}
 
 		@Override
-		public Set<ValidProblogClause> getRules() {
+		public List<ValidProblogClause> getRules() {
 			return this.rules;
 		}
 

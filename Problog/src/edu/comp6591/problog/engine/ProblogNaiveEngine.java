@@ -1,7 +1,7 @@
 package edu.comp6591.problog.engine;
 
-import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
+import edu.comp6591.problog.validation.ProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 import java.util.Set;
 
@@ -12,11 +12,11 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
-	 * @param clauses
+	 * @param program
 	 * @throws ProblogValidationException 
 	 */
 	@Override
-	public void init(Set<Clause> clauses) throws ProblogValidationException {
+	public void init(ProblogProgram program) throws ProblogValidationException {
 		throw new UnsupportedOperationException("ProblogNaiveEngine 'init' method not supported yet.");
 	}
 	

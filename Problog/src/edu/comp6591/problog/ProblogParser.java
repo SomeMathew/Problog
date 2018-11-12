@@ -12,11 +12,12 @@
  *
  * See README for contributors.
  ******************************************************************************/
-package abcdatalog.parser;
+package edu.comp6591.problog;
 
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,6 +31,8 @@ import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Premise;
 import abcdatalog.ast.Term;
 import abcdatalog.ast.Variable;
+import abcdatalog.parser.DatalogParseException;
+import abcdatalog.parser.DatalogTokenizer;
 
 /**
  * A recursive descent parser for Datalog. <br>
@@ -43,12 +46,12 @@ import abcdatalog.ast.Variable;
  * an underscore are parsed as variables.
  *
  */
-public final class DatalogParser {
+public final class ProblogParser {
 
 	/**
 	 * Class cannot be instantiated.
 	 */
-	private DatalogParser() {
+	private ProblogParser() {
 	}
 
 	/**
@@ -60,8 +63,8 @@ public final class DatalogParser {
 	 * @return the AST of program
 	 * @throws DatalogParseException
 	 */
-	public static Set<Clause> parseProgram(DatalogTokenizer t) throws DatalogParseException {
-		Set<Clause> clauses = new HashSet<>();
+	public static List<Clause> parseProgram(DatalogTokenizer t) throws DatalogParseException {
+		List<Clause> clauses = new LinkedList<>();
 		while (t.hasNext()) {
 			clauses.add(parseClause(t));
 		}
