@@ -9,7 +9,7 @@ import abcdatalog.ast.Term;
 public class AtomKey {
 	private PredicateSym pred;
 	private Term[] args;
-	
+
 	public AtomKey(PositiveAtom atom) {
 		pred = atom.getPred();
 		args = atom.getArgs();
