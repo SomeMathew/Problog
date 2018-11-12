@@ -38,37 +38,36 @@ public class PositiveAtom implements Premise, Head {
 	 * Is the atom ground (i.e., all arguments are constants)?
 	 */
 	protected volatile Boolean isGround;
-	
 	/**
-	 * A static factory method for the creation of atoms. Returns an atom with
-	 * the provided predicate symbol and arguments. The argument array becomes
-	 * "owned" by this atom and should not be modified.
+	 * Does the atom has constant
+	 */
+	protected volatile Boolean hasConstant;
+
+	/**
+	 * A static factory method for the creation of atoms. Returns an atom with the
+	 * provided predicate symbol and arguments. The argument array becomes "owned"
+	 * by this atom and should not be modified.
 	 * 
-	 * @param pred
-	 *            the predicate symbol
-	 * @param args
-	 *            the arguments
+	 * @param pred the predicate symbol
+	 * @param args the arguments
 	 * @return an atom with the provided predicate symbol and arguments
 	 */
 	public static PositiveAtom create(final PredicateSym pred, final Term[] args) {
 		return new PositiveAtom(pred, args);
 	}
-	
+
 	/**
 	 * Constructs an atom from a predicate symbol and a list of arguments.
 	 * 
-	 * @param pred
-	 *            predicate symbol
-	 * @param args
-	 *            arguments
+	 * @param pred predicate symbol
+	 * @param args arguments
 	 */
 	protected PositiveAtom(final PredicateSym pred, final Term[] args) {
 		this.pred = pred;
 		this.args = args;
 		if (pred.getArity() != args.length) {
-			throw new IllegalArgumentException("Arity of predicate symbol \""
-					+ pred + "\" is " + pred.getArity() + " but given "
-					+ args.length + " argument(s).");
+			throw new IllegalArgumentException("Arity of predicate symbol \"" + pred + "\" is " + pred.getArity()
+					+ " but given " + args.length + " argument(s).");
 		}
 	}
 
@@ -78,6 +77,19 @@ public class PositiveAtom implements Premise, Head {
 
 	public PredicateSym getPred() {
 		return this.pred;
+	}
+
+	public boolean hasConstant() {
+		Boolean hasConstant;
+
+		if ((hasConstant = this.hasConstant) == null) {
+			boolean b = false;
+			for (Term t : args) {
+				b |= t instanceof Constant;
+			}
+			this.hasConstant = hasConstant = Boolean.valueOf(b);
+		}
+		return hasConstant;
 	}
 
 	public boolean isGround() {
@@ -94,12 +106,11 @@ public class PositiveAtom implements Premise, Head {
 		}
 		return isGround;
 	}
-	
+
 	/**
 	 * Attempts to unify this atom with a fact (i.e., a ground atom).
 	 * 
-	 * @param fact
-	 *            the fact
+	 * @param fact the fact
 	 * @return a substitution, or null if the atoms do not unify
 	 */
 	public Substitution unify(PositiveAtom fact) {
@@ -113,8 +124,7 @@ public class PositiveAtom implements Premise, Head {
 	/**
 	 * Apply a substitution to the terms in this atom.
 	 * 
-	 * @param subst
-	 *            the substitution
+	 * @param subst the substitution
 	 * @return a new atom with the substitution applied
 	 */
 	public PositiveAtom applySubst(Substitution subst) {
@@ -159,7 +169,7 @@ public class PositiveAtom implements Premise, Head {
 		// This check relies on isGround being set to one of the static
 		// attributes Boolean.TRUE or Boolean.FALSE.
 		if (isGround != null && other.isGround != null && isGround != other.isGround)
-				return false;
+			return false;
 		if (!pred.equals(other.pred))
 			return false;
 		if (!Arrays.equals(args, other.args))
