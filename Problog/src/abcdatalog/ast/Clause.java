@@ -26,14 +26,14 @@ public class Clause {
 
 	private final Head head;
 	protected final List<Premise> body;
-	protected final double uncertainty;
+	protected final double certainty;
 
-	public Clause(Head head, List<Premise> body, double uncertainty) {
+	public Clause(Head head, List<Premise> body, double certainty) {
 		this.head = head;
 		this.body = body;
-		this.uncertainty = uncertainty;
+		this.certainty = certainty;
 	}
-	
+
 	public Clause(Head head, List<Premise> body) {
 		this(head, body, 1);
 	}
@@ -56,8 +56,8 @@ public class Clause {
 		return this.body;
 	}
 
-	public double getUncertainty() {
-		return uncertainty;
+	public double getCertainty() {
+		return certainty;
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class Clause {
 		int result = 1;
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
 		result = prime * result + ((head == null) ? 0 : head.hashCode());
-		result = prime * result + Double.hashCode(uncertainty);
+		result = prime * result + Double.hashCode(certainty);
 		return result;
 	}
 
@@ -89,7 +89,7 @@ public class Clause {
 				return false;
 		} else if (!head.equals(other.head))
 			return false;
-		if (uncertainty != other.uncertainty)
+		if (certainty != other.certainty)
 			return false;
 		return true;
 	}
@@ -107,7 +107,7 @@ public class Clause {
 				}
 			}
 		}
-		sb.append(" : ").append(this.uncertainty);
+		sb.append(" : ").append(this.certainty);
 		sb.append('.');
 		return sb.toString();
 	}

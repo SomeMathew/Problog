@@ -202,12 +202,12 @@ public class ProblogValidator {
 			newBody.add(0, True.getTrueAtom());
 		}
 
-		if (this.allowUncertainty && (clause.getUncertainty() > 1 || clause.getUncertainty() < 0)) {
+		if (this.allowUncertainty && (clause.getCertainty() > 1 || clause.getCertainty() < 0)) {
 			throw new ProblogValidationException("The probability for uncertainty must be in [0,1] but was found to be "
-					+ clause.getUncertainty() + " in the rule " + clause + ".");
+					+ clause.getCertainty() + " in the rule " + clause + ".");
 		}
 
-		return new ValidProblogClause(clause.getHead(), newBody, clause.getUncertainty());
+		return new ValidProblogClause(clause.getHead(), newBody, clause.getCertainty());
 	}
 
 	private static final class Program implements ProblogProgram {
