@@ -3,7 +3,6 @@ package edu.comp6591.problog.engine;
 import edu.comp6591.problog.util.ParameterHelper;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
