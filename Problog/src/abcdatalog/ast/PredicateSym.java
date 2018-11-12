@@ -108,4 +108,31 @@ public class PredicateSym {
 		return this.sym;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + arity;
+		result = prime * result + ((sym == null) ? 0 : sym.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PredicateSym other = (PredicateSym) obj;
+		if (arity != other.arity)
+			return false;
+		if (sym == null) {
+			if (other.sym != null)
+				return false;
+		} else if (!sym.equals(other.sym))
+			return false;
+		return true;
+	}
 }
