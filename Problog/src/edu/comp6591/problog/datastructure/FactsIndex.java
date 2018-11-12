@@ -7,7 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 import abcdatalog.ast.Constant;
 import abcdatalog.ast.PositiveAtom;
@@ -55,10 +56,9 @@ public class FactsIndex {
 		Set<AtomKey> facts = null;
 		Map<ConstantPosition, Set<AtomKey>> consPosMap = index.get(predicate);
 		if (consPosMap != null) {
-			
-			
+
 			List<Set<AtomKey>> factsNonIntersected = constantPositions.stream().filter(consPosMap::containsKey)
-					.map((key) -> consPosMap.get(key)).collect(Collectors.toList());
+					.map((key) -> consPosMap.get(key)).collect(toList());
 		}
 		return facts;
 	}

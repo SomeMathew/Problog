@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.*;
 
 import java.util.Arrays;
+import static java.util.Arrays.asList;
 
 /**
  * Naive algorithm to process the Problog database
@@ -67,7 +68,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private ProblogEvaluationResult evaluate() {
 		Map<AtomKey, Double> iterationCombinedCertainty = initEDBFacts(program.getInitialFacts());
 		Set<AtomKey> newDerivedFacts = iterationCombinedCertainty.keySet();
-		factsByPredicate = newDerivedFacts.stream().collect(groupingBy((key) -> key.getPred(), Collectors.toSet()));
+		factsByPredicate = newDerivedFacts.stream().collect(groupingBy((key) -> key.getPred(), toSet()));
 
 		while (!newDerivedFacts.isEmpty()) {
 			newDerivedFacts = infer(iterationCombinedCertainty);
@@ -131,10 +132,9 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 						bag = new LinkedList<>();
 						certaintyBags.put(newFact, bag);
 					}
-					List<Double> bodyCertainties = factInstantiation.stream().map(certainty::get)
-							.collect(Collectors.toList());
+					List<Double> bodyCertainties = factInstantiation.stream().map(certainty::get).collect(toList());
 					Double conjunction = conjunction(bodyCertainties);
-					Double propagation = propagation(Arrays.asList(rule.getCertainty(), conjunction));
+					Double propagation = propagation(asList(rule.getCertainty(), conjunction));
 					bag.add(propagation);
 				}
 				factInstantiation = generator.next();
@@ -147,7 +147,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 		Set<AtomKey> newBetterFacts = newCertainty.entrySet().stream()
 				.filter((entry) -> entry.getValue() > certainty.get(entry.getKey())).map(Entry::getKey)
-				.collect(Collectors.toCollection(HashSet::new));
+				.collect(toCollection(HashSet::new));
 		return newBetterFacts;
 	}
 
