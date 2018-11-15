@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import abcdatalog.ast.BinaryDisunifier;
 import abcdatalog.ast.BinaryUnifier;
@@ -240,6 +242,11 @@ public class ProblogValidator {
 
 		public Set<PredicateSym> getIdbPredicateSyms() {
 			return this.idbPredicateSymbols;
+		}
+
+		@Override
+		public List<ValidProblogClause> getAllClauses() {
+			return Stream.concat(rules.stream(), initialFacts.stream()).collect(Collectors.toList());
 		}
 
 	}

@@ -13,6 +13,8 @@ import edu.comp6591.problog.validation.ProblogValidator.ValidProblogClause;
  * This interface differs from 
  */
 public interface ProblogProgram {
+	List<ValidProblogClause> getAllClauses();
+	
 	List<ValidProblogClause> getRules();
 
 	List<ValidProblogClause> getInitialFacts();
