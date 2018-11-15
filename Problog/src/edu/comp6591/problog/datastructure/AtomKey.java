@@ -1,6 +1,7 @@
 package edu.comp6591.problog.datastructure;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 import abcdatalog.ast.PositiveAtom;
 import abcdatalog.ast.PredicateSym;
@@ -50,4 +51,14 @@ public class AtomKey {
 	public Term[] getArgs() {
 		return args;
 	}
+
+	@Override
+	public String toString() {
+		StringJoiner sj = new StringJoiner(", ", pred + "(", ")");
+		for (Term x : args) {
+			sj.add(x.toString());
+		}
+		return sj.toString();
+	}
+
 }
