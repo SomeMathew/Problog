@@ -1,13 +1,13 @@
 package edu.comp6591.problog.engine;
 
 import abcdatalog.ast.Clause;
+import abcdatalog.ast.Constant;
 import abcdatalog.ast.HeadHelpers;
 import abcdatalog.ast.PositiveAtom;
 import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Premise;
 import abcdatalog.ast.Term;
-import abcdatalog.ast.visitors.HeadVisitor;
-import abcdatalog.ast.visitors.HeadVisitorBuilder;
+import abcdatalog.ast.Variable;
 import abcdatalog.util.substitution.UnionFindBasedUnifier;
 import edu.comp6591.problog.datastructure.AtomKey;
 import edu.comp6591.problog.datastructure.FactsTupleGenerator;
@@ -22,20 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 import static java.util.stream.Collectors.*;
-
-import java.util.Arrays;
-import static java.util.Arrays.asList;
 
 /**
  * Naive algorithm to process the Problog database
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
-
 	private ProblogProgram program;
 	private Map<PredicateSym, Set<AtomKey>> factsByPredicate;
+	private Map<AtomKey, Double> computedDB = null;
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -51,7 +48,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		this.program = program; // TODO probably change that to a constructor
 		this.factsByPredicate = new HashMap<>();
 //		this.factsIndex = new FactsIndex();
-		evaluate();
+		computedDB = evaluate();
 	}
 
 	/**
@@ -65,62 +62,62 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		throw new UnsupportedOperationException("ProblogNaiveEngine 'query' method not supported yet.");
 	}
 
-	private ProblogEvaluationResult evaluate() {
-		Map<AtomKey, Double> iterationCombinedCertainty = initEDBFacts(program.getInitialFacts());
-		Set<AtomKey> newDerivedFacts = iterationCombinedCertainty.keySet();
-		factsByPredicate = newDerivedFacts.stream().collect(groupingBy((key) -> key.getPred(), toSet()));
+	private Map<AtomKey, Double> evaluate() {
+		Map<AtomKey, Double> lastFactsCertainty = new HashMap<>();
+		Set<AtomKey> newDerivedFacts = new HashSet<>();
+		factsByPredicate = new HashMap<>();
 
-		while (!newDerivedFacts.isEmpty()) {
-			newDerivedFacts = infer(iterationCombinedCertainty);
-		}
+		do {
+			Map<AtomKey, Double> newFactsCertainty = infer(lastFactsCertainty);
 
-		// TODO finish this
-		return null;
+			// Update newDerivedFacts and the factsByPredicate Index.
+			newDerivedFacts.clear();
+			for (Entry<AtomKey, Double> factEntry : newFactsCertainty.entrySet()) {
+				Double oldValue = lastFactsCertainty.get(factEntry.getKey());
+				if (oldValue == null || factEntry.getValue() > oldValue) {
+					newDerivedFacts.add(factEntry.getKey());
+				}
+				if (oldValue == null) {
+					addToFactsIndex(factEntry);
+				}
+			}
+			lastFactsCertainty = newFactsCertainty;
+		} while (!newDerivedFacts.isEmpty());
+
+		return lastFactsCertainty;
 	}
 
-	/**
-	 * Initializes the first combined certainty map for the EDB facts.
-	 * 
-	 * @param initialFacts
-	 * @return Combined certainty for each Atom facts.
-	 */
-	private Map<AtomKey, Double> initEDBFacts(List<ValidProblogClause> initialFacts) {
-		HeadVisitor<Void, AtomKey> keyMappingVisitor = new HeadVisitorBuilder<Void, AtomKey>()
-				.onPositiveAtom((atom, nothing) -> new AtomKey(atom)).orCrash();
-
-		Map<AtomKey, List<Double>> certaintyBags = initialFacts.stream()
-				.collect(groupingBy(clause -> clause.getHead().accept(keyMappingVisitor, null), HashMap::new,
-						mapping(ValidProblogClause::getCertainty, toList())));
-
-		Map<AtomKey, Double> combinedCertainty = new HashMap<>();
-
-		certaintyBags.entrySet().stream()
-				.forEach((entry) -> combinedCertainty.put(entry.getKey(), disjunction(entry.getValue())));
-
-		return combinedCertainty;
+	private void addToFactsIndex(Entry<AtomKey, Double> factEntry) {
+		PredicateSym pred = factEntry.getKey().getPred();
+		Set<AtomKey> factsSet = factsByPredicate.get(pred);
+		if (factsSet == null) {
+			factsSet = new HashSet<>();
+			factsByPredicate.put(pred, factsSet);
+		}
+		factsSet.add(factEntry.getKey());
 	}
 
 	/**
 	 * Generates all ground facts and certainty from the set of rules and ground
-	 * facts that can be inferred in one step.
+	 * facts that can be inferred in one step from the given list of facts
 	 * 
 	 * 
-	 * @param lastDerivedFacts  Set of Atoms that were last derived from the
-	 *                          previous iteration
-	 * @param combinedCertainty The combined certainty from last iteration.
-	 * @return New set of atomkey that derived better certainty.
+	 * @param lastFacts The combined certainties from last iteration for all ground
+	 *                  facts.
+	 * @return Map of ground facts and their certainties found in this iteration.
 	 */
-	private Set<AtomKey> infer(Map<AtomKey, Double> certainty) {
+	private Map<AtomKey, Double> infer(Map<AtomKey, Double> lastFacts) {
 		Map<AtomKey, List<Double>> certaintyBags = new HashMap<>();
 
-		for (ValidProblogClause rule : program.getRules()) {
+		for (ValidProblogClause rule : program.getAllClauses()) {
 			FactsTupleGenerator generator = new FactsTupleGenerator((Clause) rule, factsByPredicate);
 
 			// TODO implement an hasNext...
 			List<AtomKey> factInstantiation = generator.next();
 
-			while (factInstantiation != null) {
-				PositiveAtom groundFact = produce(generator, rule, factInstantiation);
+			while (factInstantiation != null || rule.getBody().isEmpty()) {
+				PositiveAtom groundFact = null;
+				groundFact = produce(generator, rule, factInstantiation);
 
 				// Combine the certainty If we found a new fact
 				// TODO encapsulate this
@@ -132,23 +129,32 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 						bag = new LinkedList<>();
 						certaintyBags.put(newFact, bag);
 					}
-					List<Double> bodyCertainties = factInstantiation.stream().map(certainty::get).collect(toList());
-					Double conjunction = conjunction(bodyCertainties);
-					Double propagation = propagation(asList(rule.getCertainty(), conjunction));
+
+					// The conjunction function has greatest element if empty
+					Double conjunction = GREATEST_ELEMENT;
+					if (factInstantiation != null) {
+						List<Double> bodyCertainties = factInstantiation.stream().map(lastFacts::get).collect(toList());
+						conjunction = conjunction(bodyCertainties);
+					}
+
+					Double propagation = propagation(conjunction, rule.getCertainty());
 					bag.add(propagation);
+
+					// Break if this was an edb ground fact
+					if (rule.getBody().isEmpty()) {
+						break;
+					}
 				}
 				factInstantiation = generator.next();
 			}
 		}
 
-		Map<AtomKey, Double> newCertainty = new HashMap<>();
-		certaintyBags.entrySet().stream()
-				.forEach((entry) -> newCertainty.put(entry.getKey(), disjunction(entry.getValue())));
+		Map<AtomKey, Double> newCertainties = new HashMap<>();
+		for (Entry<AtomKey, List<Double>> bagEntry : certaintyBags.entrySet()) {
+			newCertainties.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
+		}
 
-		Set<AtomKey> newBetterFacts = newCertainty.entrySet().stream()
-				.filter((entry) -> entry.getValue() > certainty.get(entry.getKey())).map(Entry::getKey)
-				.collect(toCollection(HashSet::new));
-		return newBetterFacts;
+		return newCertainties;
 	}
 
 	/**
@@ -164,33 +170,56 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			List<AtomKey> candidateGroundFacts) {
 		List<Premise> ruleBody = rule.getBody();
 
-		int i = 0;
-		UnionFindBasedUnifier mgu = null;
-		while (i < ruleBody.size()) {
+		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
+		boolean unifies = true;
+		int i;
+		for (i = 0; i < ruleBody.size() && unifies; i++) {
 			PositiveAtom nextRuleAtom = (PositiveAtom) ruleBody.get(i);
-			Term[] nextRuleTerm;
-			if (mgu == null) {
-				nextRuleTerm = nextRuleAtom.getArgs();
-			} else {
-				nextRuleTerm = mgu.apply(nextRuleAtom.getArgs());
-			}
+			AtomKey nextFactAtom = candidateGroundFacts.get(i);
 
-			mgu = (UnionFindBasedUnifier) UnionFindBasedUnifier.fromTerms(candidateGroundFacts.get(i).getArgs(),
-					nextRuleTerm);
-
-			if (mgu != null) {
-				i++;
+			if (!nextRuleAtom.getPred().getSym().equals(nextFactAtom.getPred().getSym())
+					|| nextRuleAtom.getPred().getArity() != nextFactAtom.getPred().getArity()) {
+				unifies = false;
 			} else {
-				break;
+				Term[] ruleTerms = nextRuleAtom.getArgs();
+				Term[] factTerms = nextFactAtom.getArgs();
+
+				unifies = unifyArgs(mgu, ruleTerms, factTerms);
 			}
 		}
 
-		if (mgu == null) {
-			generator.registerFail(i);
+		PositiveAtom headAtom = HeadHelpers.forcePositiveAtom(rule.getHead());
+		if (!unifies && !headAtom.isGround()) {
+			generator.registerFail(i - 1);
 			return null;
 		} else {
-			PositiveAtom headAtom = HeadHelpers.forcePositiveAtom(rule.getHead());
 			return PositiveAtom.create(headAtom.getPred(), mgu.apply(headAtom.getArgs()));
 		}
 	}
+
+	/**
+	 * Try to unify the array of terms, this will update the Unifier.
+	 * 
+	 * @param mgu
+	 * @param ruleTerms
+	 * @param factTerms
+	 * @return True if it could successfully unify the terms.
+	 */
+	private boolean unifyArgs(UnionFindBasedUnifier mgu, Term[] ruleTerms, Term[] factTerms) {
+		boolean unifies = true;
+		for (int t = 0; t < ruleTerms.length && unifies; t++) {
+			if (ruleTerms[t] instanceof Variable) {
+				unifies = mgu.unify((Variable) ruleTerms[t], factTerms[t]);
+			} else if (ruleTerms[t] instanceof Constant) {
+				unifies = ((Constant) ruleTerms[t]).equals((Constant) factTerms[t]);
+			}
+		}
+		return unifies;
+	}
+
+	@Override
+	public Map<AtomKey, Double> getComputedDatabase() {
+		return computedDB;
+	}
+
 }

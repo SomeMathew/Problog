@@ -27,6 +27,8 @@ public class Program {
 			String data = FileHelper.getFile(path);
 			ProblogProgram program = ASTHelper.getProgram(data);
 			engine.init(program);
+			System.out.println("\nDatabase Result:");
+			engine.getComputedDatabase().entrySet().forEach(System.out::println);
 
 			System.out.println("The data is processed and ready to use. Please enter your query (or 0 to stop):");
 			String query = scan.nextLine();
