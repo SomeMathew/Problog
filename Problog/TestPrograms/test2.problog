@@ -1,0 +1,6 @@
+a(value) : 0.2.
+b(value) : 0.5.
+c(value) : 0.8.
+c(value) : 0.5.
+a(X) :- b(X), c(X) : 0.6.
+b(X) :- a(X), b(X) : 0.4.

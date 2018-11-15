@@ -1,0 +1,6 @@
+edge(1,2) : 0.5.
+edge(2,3) : 0.5.
+edge(3,4) : 0.5.
+
+path(X,Y) :- edge(X,Y) : 0.5.
+path(X,Z) :- edge(X,Y), path(Y,Z) : 0.5.
