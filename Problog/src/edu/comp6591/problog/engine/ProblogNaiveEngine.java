@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 
 import static java.util.stream.Collectors.*;
 
@@ -31,7 +30,7 @@ import static java.util.stream.Collectors.*;
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
 	private ProblogProgram program;
-	private Map<PredicateSym, Set<AtomKey>> factsByPredicate;
+	private Map<PredicateSym, Set<AtomKey>> factsIndex;
 	private Map<AtomKey, Double> computedDB = null;
 
 	/**
@@ -46,7 +45,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
 		this.program = program; // TODO probably change that to a constructor
-		this.factsByPredicate = new HashMap<>();
+		this.factsIndex = new HashMap<>();
 //		this.factsIndex = new FactsIndex();
 		computedDB = evaluate();
 	}
@@ -65,7 +64,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private Map<AtomKey, Double> evaluate() {
 		Map<AtomKey, Double> lastFactsCertainty = new HashMap<>();
 		Set<AtomKey> newDerivedFacts = new HashSet<>();
-		factsByPredicate = new HashMap<>();
+		factsIndex = new HashMap<>();
 
 		do {
 			Map<AtomKey, Double> newFactsCertainty = infer(lastFactsCertainty);
@@ -89,10 +88,10 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 	private void addToFactsIndex(Entry<AtomKey, Double> factEntry) {
 		PredicateSym pred = factEntry.getKey().getPred();
-		Set<AtomKey> factsSet = factsByPredicate.get(pred);
+		Set<AtomKey> factsSet = factsIndex.get(pred);
 		if (factsSet == null) {
 			factsSet = new HashSet<>();
-			factsByPredicate.put(pred, factsSet);
+			factsIndex.put(pred, factsSet);
 		}
 		factsSet.add(factEntry.getKey());
 	}
@@ -109,15 +108,15 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private Map<AtomKey, Double> infer(Map<AtomKey, Double> lastFacts) {
 		Map<AtomKey, List<Double>> certaintyBags = new HashMap<>();
 
-		for (ValidProblogClause rule : program.getAllClauses()) {
-			FactsTupleGenerator generator = new FactsTupleGenerator((Clause) rule, factsByPredicate);
+		for (ValidProblogClause clause : program.getAllClauses()) {
+			FactsTupleGenerator generator = new FactsTupleGenerator((Clause) clause, factsIndex);
 
 			// TODO implement an hasNext...
 			List<AtomKey> factInstantiation = generator.next();
 
-			while (factInstantiation != null || rule.getBody().isEmpty()) {
+			while (factInstantiation != null || clause.getBody().isEmpty()) {
 				PositiveAtom groundFact = null;
-				groundFact = produce(generator, rule, factInstantiation);
+				groundFact = produce(generator, clause, factInstantiation);
 
 				// Combine the certainty If we found a new fact
 				// TODO encapsulate this
@@ -137,11 +136,11 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 						conjunction = conjunction(bodyCertainties);
 					}
 
-					Double propagation = propagation(conjunction, rule.getCertainty());
+					Double propagation = propagation(conjunction, clause.getCertainty());
 					bag.add(propagation);
 
 					// Break if this was an edb ground fact
-					if (rule.getBody().isEmpty()) {
+					if (clause.getBody().isEmpty()) {
 						break;
 					}
 				}
