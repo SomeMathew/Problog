@@ -12,18 +12,18 @@
  *
  * See README for contributors.
  ******************************************************************************/
-package abcdatalog.parser;
+package edu.comp6591.problog;
 
 /**
  * An exception signifying a parsing error.
  *
  */
 @SuppressWarnings("serial")
-public class DatalogParseException extends Exception {
+public class ProblogParseException extends Exception {
 	/**
 	 * Constructs an exception signifying a parsing error.
 	 */
-	public DatalogParseException() {
+	public ProblogParseException() {
 	}
 
 	/**
@@ -32,7 +32,7 @@ public class DatalogParseException extends Exception {
 	 * @param message
 	 *            the error message
 	 */
-	public DatalogParseException(String message) {
+	public ProblogParseException(String message) {
 		super(message);
 	}
 
@@ -42,7 +42,7 @@ public class DatalogParseException extends Exception {
 	 * @param cause
 	 *            the exception that caused this exception
 	 */
-	public DatalogParseException(Throwable cause) {
+	public ProblogParseException(Throwable cause) {
 		super(cause);
 	}
 
@@ -54,7 +54,7 @@ public class DatalogParseException extends Exception {
 	 * @param cause
 	 *            the exception that caused this exception
 	 */
-	public DatalogParseException(String message, Throwable cause) {
+	public ProblogParseException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
@@ -70,7 +70,7 @@ public class DatalogParseException extends Exception {
 	 * @param writableStackTrace
 	 *            whether or not the stack trace should be writable
 	 */
-	public DatalogParseException(String message, Throwable cause,
+	public ProblogParseException(String message, Throwable cause,
 			boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}

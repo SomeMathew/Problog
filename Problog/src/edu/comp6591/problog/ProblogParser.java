@@ -14,37 +14,47 @@
  ******************************************************************************/
 package edu.comp6591.problog;
 
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import abcdatalog.ast.BinaryDisunifier;
-import abcdatalog.ast.BinaryUnifier;
-import abcdatalog.ast.Clause;
-import abcdatalog.ast.Constant;
-import abcdatalog.ast.NegatedAtom;
-import abcdatalog.ast.PositiveAtom;
-import abcdatalog.ast.PredicateSym;
-import abcdatalog.ast.Premise;
-import abcdatalog.ast.Term;
-import abcdatalog.ast.Variable;
-import abcdatalog.parser.DatalogParseException;
 import abcdatalog.parser.DatalogTokenizer;
+import edu.comp6591.problog.ast.Atom;
+import edu.comp6591.problog.ast.Certainty;
+import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.ast.Constant;
+import edu.comp6591.problog.ast.ITerm;
+import edu.comp6591.problog.ast.Predicate;
+import edu.comp6591.problog.ast.Variable;
 
 /**
- * A recursive descent parser for Datalog. <br>
+ * A recursive descent parser for Problog adapted from the abcDatalog parser.
  * <br>
- * A Datalog program is a set of clauses, where each clause is in the form "a0
- * :- a1, ..., an." or "a0." and each ai is an atom of the form "pi" or "pi(t1,
- * ..., tki)" for ki > 0 such that pi is a predicate symbol and each tj for 0 <
- * j <= ki is a term (i.e. a constant or variable). Any variable in a0 must
- * appear in at least one of ai, ..., an. Identifiers can contain letters,
- * digits and underscores. Identifiers that begin with an upper case letter or
- * an underscore are parsed as variables.
+ * <br>
+ * A Problog program is a set of clauses, where each clause is in the form "a0
+ * :- a1, ..., an : c." or "a0 : c." and each ai is an atom of the form "pi" or
+ * "pi(t1, ..., tki)" for ki > 0 such that pi is a predicate symbol, each tj for
+ * 0 < j <= ki is a term (i.e. a constant or variable) and each c is a double in
+ * [0,1]. Any variable in a0 must appear in at least one of ai, ..., an.
+ * Identifiers can contain letters, digits and underscores. Identifiers that
+ * begin with an upper case letter or an underscore are parsed as variables.
  *
+ * Credit to the abcDatalog project for this parser, it was adapted for the
+ * problog language with the addition of the certainty for a rule or ground
+ * fact.
+ * 
+ * The following modifications were done to the parse:
+ * <ul>
+ * <li>Removal of
+ * <ul>
+ * <li>negation
+ * <li>unifier
+ * <li>disunifier
+ * <li>query parsing
+ * </ul>
+ * <li>Extension of the grammar for the certainty element
+ * <li>Uses the problog AST which is a simplified version of the original
+ * abcdatalog ast.
  */
 public final class ProblogParser {
 
@@ -55,15 +65,14 @@ public final class ProblogParser {
 	}
 
 	/**
-	 * Generates an abstract syntax tree representation of the program described
-	 * by the provided token stream.
+	 * Generates an abstract syntax tree representation of the program described by
+	 * the provided token stream.
 	 * 
-	 * @param t
-	 *            the token stream representation of program
+	 * @param t the token stream representation of program
 	 * @return the AST of program
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public static List<Clause> parseProgram(DatalogTokenizer t) throws DatalogParseException {
+	public static List<Clause> parseProgram(DatalogTokenizer t) throws ProblogParseException {
 		List<Clause> clauses = new LinkedList<>();
 		while (t.hasNext()) {
 			clauses.add(parseClause(t));
@@ -74,18 +83,17 @@ public final class ProblogParser {
 	/**
 	 * Attempts to extract a clause from the provided token stream.
 	 * 
-	 * @param t
-	 *            the token stream
+	 * @param t the token stream
 	 * @return the clause
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	private static Clause parseClause(DatalogTokenizer t) throws DatalogParseException {
+	private static Clause parseClause(DatalogTokenizer t) throws ProblogParseException {
 		// Parse the head of the clause.
-		PositiveAtom head = parsePositiveAtom(t);
+		Atom head = parseAtom(t);
 		Double probability = null;
 
 		// Parse the body (if any).
-		List<Premise> body = new ArrayList<>();
+		List<Atom> body = new ArrayList<>();
 		// We have a body or probability
 		if (t.peek().equals(":")) {
 			t.consume(":");
@@ -100,7 +108,7 @@ public final class ProblogParser {
 					t.consume(",");
 				}
 			}
-			
+
 			// We have a probability
 			if (!t.peek().equals(".")) {
 				if (t.peek().equals(":")) {
@@ -111,50 +119,25 @@ public final class ProblogParser {
 		}
 		t.consume(".");
 
-		return new Clause(head, body, probability == null ? 1 : probability);
+		return new Clause(head, body, new Certainty(probability == null ? 1 : probability));
 	}
 
-	private static Premise parseConjunct(DatalogTokenizer t) throws DatalogParseException {
+	private static Atom parseConjunct(DatalogTokenizer t) throws ProblogParseException {
 		String id = parseIdentifier(t);
-		String next = t.peek();
-		if (id.equals("not")) {
-			return new NegatedAtom(parsePositiveAtom(t));
-		}
-		if (next.equals("=")) {
-			return parseBinaryUnifier(id, t);
-		}
-		if (next.equals("!")) {
-			return parseBinaryDisunifier(id, t);
-		}
-		return parsePositiveAtom(id, t);
+		return parseAtom(id, t);
 	}
 
-	private static BinaryUnifier parseBinaryUnifier(String first, DatalogTokenizer t) throws DatalogParseException {
-		Term t1 = parseTerm(first);
-		t.consume("=");
-		Term t2 = parseTerm(t.next());
-		return new BinaryUnifier(t1, t2);
-	}
-
-	private static BinaryDisunifier parseBinaryDisunifier(String first, DatalogTokenizer t)
-			throws DatalogParseException {
-		Term t1 = parseTerm(first);
-		t.consume("!=");
-		Term t2 = parseTerm(t.next());
-		return new BinaryDisunifier(t1, t2);
-	}
-
-	private static PositiveAtom parsePositiveAtom(String predSym, DatalogTokenizer t) throws DatalogParseException {
+	private static Atom parseAtom(String predSym, DatalogTokenizer t) throws ProblogParseException {
 		char first = predSym.charAt(0);
 		if (Character.isUpperCase(first)) {
-			throw new DatalogParseException(
+			throw new ProblogParseException(
 					"Invalid predicate symbol \"" + predSym + "\" begins with an upper case letter.");
 		}
 		if (first == '_') {
-			throw new DatalogParseException("Invalid predicate symbol \"" + predSym + "\" begins with an underscore.");
+			throw new ProblogParseException("Invalid predicate symbol \"" + predSym + "\" begins with an underscore.");
 		}
 
-		ArrayList<Term> args = new ArrayList<>();
+		ArrayList<ITerm> args = new ArrayList<>();
 		// If followed by a parenthesis, must have arity greater than zero.
 		if (t.peek().equals("(")) {
 			t.consume("(");
@@ -169,49 +152,41 @@ public final class ProblogParser {
 			t.consume(")");
 		}
 		args.trimToSize();
-		Term[] array = new Term[args.size()];
-		for (int i = 0; i < args.size(); ++i) {
-			array[i] = args.get(i);
-		}
-		return PositiveAtom.create(PredicateSym.create(predSym, args.size()), array);
+		return new Atom(new Predicate(predSym, args.size()), args);
 	}
 
 	/**
 	 * Attempts to extract an atom from the provided token stream.
 	 * 
-	 * @param t
-	 *            the token stream
-	 * @param vars
-	 *            records the variables in this atom
+	 * @param t    the token stream
+	 * @param vars records the variables in this atom
 	 * @return the atom
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	private static PositiveAtom parsePositiveAtom(DatalogTokenizer t) throws DatalogParseException {
-		return parsePositiveAtom(parseIdentifier(t), t);
+	private static Atom parseAtom(DatalogTokenizer t) throws ProblogParseException {
+		return parseAtom(parseIdentifier(t), t);
 	}
 
-	private static Term parseTerm(String s) throws DatalogParseException {
+	private static ITerm parseTerm(String s) throws ProblogParseException {
 		if (s.equals("_")) {
-			return Variable.createFreshVariable();
+			return new Variable("_");
 		}
 		char c = s.charAt(0);
 		if (Character.isUpperCase(c) || c == '_') {
-			return Variable.create(s);
+			return new Variable(s);
 		}
-		return Constant.create(s);
+		return new Constant(s);
 	}
 
 	/**
-	 * Attempts to extract a valid identifier from the supplied token stream.
-	 * Valid identifiers are formed from alphanumeric characters and
-	 * underscores.
+	 * Attempts to extract a valid identifier from the supplied token stream. Valid
+	 * identifiers are formed from alphanumeric characters and underscores.
 	 * 
-	 * @param t
-	 *            the token stream
+	 * @param t the token stream
 	 * @return the identifier
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	private static String parseIdentifier(DatalogTokenizer t) throws DatalogParseException {
+	private static String parseIdentifier(DatalogTokenizer t) throws ProblogParseException {
 		String s = t.next();
 		// Check to make sure it contains only appropriate characters for an
 		// identifier.
@@ -220,7 +195,7 @@ public final class ProblogParser {
 			okay &= Character.isLetterOrDigit(s.charAt(i)) || s.charAt(i) == '_';
 		}
 		if (!okay) {
-			throw new DatalogParseException("Invalid identifier \"" + s + "\" not alphanumeric.");
+			throw new ProblogParseException("Invalid identifier \"" + s + "\" not alphanumeric.");
 		}
 		return s;
 	}
@@ -229,44 +204,43 @@ public final class ProblogParser {
 	 * Attempts to extract an atom representation of the query described in the
 	 * token stream.
 	 * 
-	 * @param t
-	 *            the token stream
+	 * @param t the token stream
 	 * @return the atom
 	 * @throws DatalogParseException
 	 */
-	public static PositiveAtom parseQuery(DatalogTokenizer t) throws DatalogParseException {
-		PositiveAtom r = parsePositiveAtom(t);
+	public static Atom parseQuery(DatalogTokenizer t) throws ProblogParseException {
+		Atom r = parseAtom(t);
 		t.consume("?");
 		return r;
 	}
 
-	/**
-	 * Extracts an atom from the token stream. The atom must be followed by a
-	 * period.
-	 * 
-	 * @param t
-	 *            the token stream
-	 * @return the atom
-	 * @throws DatalogParseException
-	 */
-	public static PositiveAtom parseClauseAsPositiveAtom(DatalogTokenizer t) throws DatalogParseException {
-		PositiveAtom r = parsePositiveAtom(t);
-		t.consume(".");
-		return r;
-	}
+//	/**
+//	 * Extracts an atom from the token stream. The atom must be followed by a
+//	 * period.
+//	 * 
+//	 * @param t the token stream
+//	 * @return the atom
+//	 * @throws DatalogParseException
+//	 */
+//	public static Atom parseClauseAsPositiveAtom(DatalogTokenizer t) throws ProblogParseException {
+//		PositiveAtom r = parseAtom(t);
+//		t.consume(".");
+//		return r;
+//	}
+
 	/**
 	 * Extract the probability from the token stream.
 	 * 
 	 * Probability must be between 0 and 1 and well formed (e.g. 0.1 not .1)
 	 * 
-	 * This is necessary since the tokenizer is set to tokenize the "." which prevents parsing floats.
+	 * This is necessary since the tokenizer is set to tokenize the "." which
+	 * prevents parsing floats.
 	 * 
-	 * @param t
-	 *            the token stream
+	 * @param t the token stream
 	 * @return the probability as a double
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public static double parseProbability(DatalogTokenizer t) throws DatalogParseException{
+	public static double parseProbability(DatalogTokenizer t) throws ProblogParseException {
 		StringBuilder sb = new StringBuilder();
 		String tok = t.next();
 		sb.append(tok);
@@ -275,25 +249,8 @@ public final class ProblogParser {
 			sb.append(".");
 			do {
 				sb.append(t.next());
-			} while(!t.peek().equals("."));
+			} while (!t.peek().equals("."));
 		}
 		return Double.parseDouble(sb.toString());
-	}
-
-	// Basic demonstration of parser.
-	public static void main(String[] args) throws DatalogParseException {
-		String source = "lk_1(a,b). lk_1(b,c). reachable(X,Y) :- lk_1(X,Y)."
-				+ "reachable(X,Y) :- lk_1(X,Z), %ignore\n not reachable(Z,Y).";
-		DatalogTokenizer t = new DatalogTokenizer(new StringReader(source));
-		for (Clause c : parseProgram(t)) {
-			System.out.println(c);
-		}
-
-		String query = "lk_1(a,X)?";
-		t = new DatalogTokenizer(new StringReader(query));
-		System.out.println(parseQuery(t));
-
-		t = new DatalogTokenizer(new StringReader("X != Y"));
-		System.out.println(parseConjunct(t));
 	}
 }

@@ -61,33 +61,33 @@ import abcdatalog.util.substitution.UnionFindBasedUnifier;
  * facts and a set of rules for deriving new facts. The rules in a program are
  * guaranteed to be valid.
  */
-public class ProblogValidator {
+public class ProblogValidatorOld {
 	private boolean allowBinaryUnification;
 	private boolean allowBinaryDisunification;
 	private boolean allowNegatedBodyAtom;
 	private boolean allowUncertainty;
 
-	public ProblogValidator withBinaryUnificationInRuleBody() {
+	public ProblogValidatorOld withBinaryUnificationInRuleBody() {
 		this.allowBinaryUnification = true;
 		return this;
 	}
 
-	public ProblogValidator withBinaryDisunificationInRuleBody() {
+	public ProblogValidatorOld withBinaryDisunificationInRuleBody() {
 		this.allowBinaryDisunification = true;
 		return this;
 	}
 
-	public ProblogValidator withAtomNegationInRuleBody() {
+	public ProblogValidatorOld withAtomNegationInRuleBody() {
 		this.allowNegatedBodyAtom = true;
 		return this;
 	}
 
-	public ProblogValidator withUncertainty() {
+	public ProblogValidatorOld withUncertainty() {
 		this.allowUncertainty = true;
 		return this;
 	}
 
-	public ProblogProgram validate(List<Clause> program) throws ProblogValidationException {
+	public ProblogProgramOLD validate(List<Clause> program) throws ProblogValidationException {
 		List<ValidProblogClause> rewrittenClauses = new LinkedList<>();
 		for (Clause clause : program) {
 			rewrittenClauses.add(checkRule(clause));
@@ -212,7 +212,7 @@ public class ProblogValidator {
 		return new ValidProblogClause(clause.getHead(), newBody, clause.getCertainty());
 	}
 
-	private static final class Program implements ProblogProgram {
+	private static final class Program implements ProblogProgramOLD {
 		private final List<ValidProblogClause> rules;
 		private final List<ValidProblogClause> initialFacts;
 		private final Set<PredicateSym> edbPredicateSymbols;

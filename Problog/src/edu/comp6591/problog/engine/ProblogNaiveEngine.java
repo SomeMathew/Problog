@@ -10,10 +10,11 @@ import abcdatalog.ast.Term;
 import abcdatalog.ast.Variable;
 import abcdatalog.util.substitution.UnionFindBasedUnifier;
 import edu.comp6591.problog.ast.Atom;
+import edu.comp6591.problog.datastructure.AtomKey;
 import edu.comp6591.problog.datastructure.FactsTupleGenerator;
-import edu.comp6591.problog.validation.ProblogProgram;
+import edu.comp6591.problog.validation.ProblogProgramOLD;
 import edu.comp6591.problog.validation.ProblogValidationException;
-import edu.comp6591.problog.validation.ProblogValidator.ValidProblogClause;
+import edu.comp6591.problog.validation.ProblogValidatorOld.ValidProblogClause;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,9 +30,9 @@ import static java.util.stream.Collectors.*;
  * Naive algorithm to process the Problog database
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
-	private ProblogProgram program;
-	private Map<PredicateSym, Set<Atom>> factsIndex;
-	private Map<Atom, Double> computedDB = null;
+	private ProblogProgramOLD program;
+	private Map<PredicateSym, Set<AtomKey>> factsIndex;
+	private Map<AtomKey, Double> computedDB = null;
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -40,7 +41,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @throws ProblogValidationException
 	 */
 	@Override
-	public void init(ProblogProgram program) throws ProblogValidationException {
+	public void init(ProblogProgramOLD program) throws ProblogValidationException {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
@@ -57,21 +58,21 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @return result(s)
 	 */
 	@Override
-	public Set<PositiveAtom> query(PositiveAtom query) { // TODO this need to be changed to a list??
+	public Set<Atom> query(Atom query) { // TODO this need to be changed to a list??
 		throw new UnsupportedOperationException("ProblogNaiveEngine 'query' method not supported yet.");
 	}
 
-	private Map<Atom, Double> evaluate() {
-		Map<Atom, Double> lastFactsCertainty = new HashMap<>();
-		Set<Atom> newDerivedFacts = new HashSet<>();
+	private Map<AtomKey, Double> evaluate() {
+		Map<AtomKey, Double> lastFactsCertainty = new HashMap<>();
+		Set<AtomKey> newDerivedFacts = new HashSet<>();
 		factsIndex = new HashMap<>();
 
 		do {
-			Map<Atom, Double> newFactsCertainty = infer(lastFactsCertainty);
+			Map<AtomKey, Double> newFactsCertainty = infer(lastFactsCertainty);
 
 			// Update newDerivedFacts and the factsByPredicate Index.
 			newDerivedFacts.clear();
-			for (Entry<Atom, Double> factEntry : newFactsCertainty.entrySet()) {
+			for (Entry<AtomKey, Double> factEntry : newFactsCertainty.entrySet()) {
 				Double oldValue = lastFactsCertainty.get(factEntry.getKey());
 				if (oldValue == null || factEntry.getValue() > oldValue) {
 					newDerivedFacts.add(factEntry.getKey());
@@ -86,9 +87,9 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		return lastFactsCertainty;
 	}
 
-	private void addToFactsIndex(Entry<Atom, Double> factEntry) {
+	private void addToFactsIndex(Entry<AtomKey, Double> factEntry) {
 		PredicateSym pred = factEntry.getKey().getPred();
-		Set<Atom> factsSet = factsIndex.get(pred);
+		Set<AtomKey> factsSet = factsIndex.get(pred);
 		if (factsSet == null) {
 			factsSet = new HashSet<>();
 			factsIndex.put(pred, factsSet);
@@ -105,14 +106,14 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 *                  facts.
 	 * @return Map of ground facts and their certainties found in this iteration.
 	 */
-	private Map<Atom, Double> infer(Map<Atom, Double> lastFacts) {
-		Map<Atom, List<Double>> certaintyBags = new HashMap<>();
+	private Map<AtomKey, Double> infer(Map<AtomKey, Double> lastFacts) {
+		Map<AtomKey, List<Double>> certaintyBags = new HashMap<>();
 
 		for (ValidProblogClause clause : program.getAllClauses()) {
 			FactsTupleGenerator generator = new FactsTupleGenerator((Clause) clause, factsIndex);
 
 			// TODO implement an hasNext...
-			List<Atom> factInstantiation = generator.next();
+			List<AtomKey> factInstantiation = generator.next();
 
 			while (factInstantiation != null || clause.getBody().isEmpty()) {
 				PositiveAtom groundFact = null;
@@ -121,7 +122,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 				// Combine the certainty If we found a new fact
 				// TODO encapsulate this
 				if (groundFact != null) {
-					Atom newFact = new Atom(groundFact);
+					AtomKey newFact = new AtomKey(groundFact);
 
 					List<Double> bag = certaintyBags.get(newFact);
 					if (bag == null) {
@@ -148,8 +149,8 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			}
 		}
 
-		Map<Atom, Double> newCertainties = new HashMap<>();
-		for (Entry<Atom, List<Double>> bagEntry : certaintyBags.entrySet()) {
+		Map<AtomKey, Double> newCertainties = new HashMap<>();
+		for (Entry<AtomKey, List<Double>> bagEntry : certaintyBags.entrySet()) {
 			newCertainties.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
 		}
 
@@ -166,7 +167,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @return
 	 */
 	private PositiveAtom produce(FactsTupleGenerator generator, ValidProblogClause rule,
-			List<Atom> candidateGroundFacts) {
+			List<AtomKey> candidateGroundFacts) {
 		List<Premise> ruleBody = rule.getBody();
 
 		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
@@ -174,7 +175,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		int i;
 		for (i = 0; i < ruleBody.size() && unifies; i++) {
 			PositiveAtom nextRuleAtom = (PositiveAtom) ruleBody.get(i);
-			Atom nextFactAtom = candidateGroundFacts.get(i);
+			AtomKey nextFactAtom = candidateGroundFacts.get(i);
 
 			if (!nextRuleAtom.getPred().getSym().equals(nextFactAtom.getPred().getSym())
 					|| nextRuleAtom.getPred().getArity() != nextFactAtom.getPred().getArity()) {
@@ -217,7 +218,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	}
 
 	@Override
-	public Map<Atom, Double> getComputedDatabase() {
+	public Map<AtomKey, Double> getComputedDatabase() {
 		return computedDB;
 	}
 

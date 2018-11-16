@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
 
+import edu.comp6591.problog.ProblogParseException;
+
 /**
  * A tokenizer for Datalog. <br>
  * <br>
@@ -55,13 +57,13 @@ public class DatalogTokenizer {
 	 * @param token
 	 *            the token code
 	 * @return the string representation
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	private String stringifyToken(int token) throws DatalogParseException {
+	private String stringifyToken(int token) throws ProblogParseException {
 		switch (this.st.ttype) {
 
 		case StreamTokenizer.TT_EOF:
-			throw new DatalogParseException("Unexpected EOF token.");
+			throw new ProblogParseException("Unexpected EOF token.");
 		case StreamTokenizer.TT_EOL:
 			// This case should never be reached, since EOLs are treated as
 			// having no special significance.
@@ -84,9 +86,9 @@ public class DatalogTokenizer {
 	 * 
 	 * @param s
 	 *            the string representation of the tokens to be consumed
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public void consume(String s) throws DatalogParseException {
+	public void consume(String s) throws ProblogParseException {
 		try {
 			String token = "";
 			while (token.length() < s.length()) {
@@ -94,11 +96,11 @@ public class DatalogTokenizer {
 			}
 
 			if (!token.equals(s)) {
-				throw new DatalogParseException("Tried to consume \"" + s
+				throw new ProblogParseException("Tried to consume \"" + s
 						+ "\" but found \"" + token + "\".");
 			}
 		} catch (IOException e) {
-			throw new DatalogParseException(e);
+			throw new ProblogParseException(e);
 		}
 	}
 
@@ -107,15 +109,15 @@ public class DatalogTokenizer {
 	 * exception if at EOF.
 	 * 
 	 * @return the string representation of token
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public String peek() throws DatalogParseException {
+	public String peek() throws ProblogParseException {
 		try {
 			String token = stringifyToken(this.st.nextToken());
 			this.st.pushBack();
 			return token;
 		} catch (IOException e) {
-			throw new DatalogParseException(e);
+			throw new ProblogParseException(e);
 		}
 	}
 
@@ -124,14 +126,14 @@ public class DatalogTokenizer {
 	 * if at EOF.
 	 * 
 	 * @return the string representation of token
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public String next() throws DatalogParseException {
+	public String next() throws ProblogParseException {
 		try {
 			String token = stringifyToken(this.st.nextToken());
 			return token;
 		} catch (IOException e) {
-			throw new DatalogParseException(e);
+			throw new ProblogParseException(e);
 		}
 	}
 
@@ -139,15 +141,15 @@ public class DatalogTokenizer {
 	 * Returns whether there is another token in this stream.
 	 * 
 	 * @return whether there is another token
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public boolean hasNext() throws DatalogParseException {
+	public boolean hasNext() throws ProblogParseException {
 		try {
 			this.st.nextToken();
 			this.st.pushBack();
 			return this.st.ttype != StreamTokenizer.TT_EOF;
 		} catch (IOException e) {
-			throw new DatalogParseException(e);
+			throw new ProblogParseException(e);
 		}
 	}
 

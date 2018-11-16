@@ -1,10 +1,10 @@
 package edu.comp6591.problog;
 
-import abcdatalog.ast.PositiveAtom;
+import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.engine.IProblogEngine;
 import edu.comp6591.problog.engine.ProblogEngineFactory;
 import edu.comp6591.problog.util.FileHelper;
-import edu.comp6591.problog.validation.ProblogProgram;
+import edu.comp6591.problog.validation.ProblogProgramOLD;
 import edu.comp6591.problog.util.ASTHelper;
 import java.util.Scanner;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class Program {
 			String path = scan.nextLine();
 
 			String data = FileHelper.getFile(path);
-			ProblogProgram program = ASTHelper.getProgram(data);
+			ProblogProgramOLD program = ASTHelper.getProgram(data);
 			engine.init(program);
 			System.out.println("\nDatabase Result:");
 			engine.getComputedDatabase().entrySet().forEach(System.out::println);
@@ -34,8 +34,8 @@ public class Program {
 			String query = scan.nextLine();
 
 			while (!query.equals("0")) {
-				PositiveAtom goal = ASTHelper.getGoal(query);
-				Set<PositiveAtom> results = engine.query(goal);
+				Atom goal = ASTHelper.getGoal(query);
+				Set<Atom> results = engine.query(goal);
 
 				System.out.println("Your result(s):");
 				System.out.println(ASTHelper.setResults(goal, results));

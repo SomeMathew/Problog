@@ -1,13 +1,13 @@
 package edu.comp6591.problog.util;
 
-import abcdatalog.ast.Clause;
-import abcdatalog.ast.PositiveAtom;
-import abcdatalog.parser.DatalogParseException;
 import abcdatalog.parser.DatalogTokenizer;
+import edu.comp6591.problog.ProblogParseException;
 import edu.comp6591.problog.ProblogParser;
-import edu.comp6591.problog.validation.ProblogProgram;
+import edu.comp6591.problog.ast.Atom;
+import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.validation.ProblogProgramOLD;
 import edu.comp6591.problog.validation.ProblogValidationException;
-import edu.comp6591.problog.validation.ProblogValidator;
+import edu.comp6591.problog.validation.ProblogValidatorOld;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Set;
@@ -16,52 +16,56 @@ import java.util.Set;
  * AST model conversion methods
  */
 public class ASTHelper {
-	
+
 	/**
 	 * Convert data string to AST model
+	 * 
 	 * @param data
 	 * @return ProblogProgram
-	 * @throws DatalogParseException
+	 * @throws ProblogParseException
 	 */
-	public static List<Clause> getClauses(String data) throws DatalogParseException {
+	public static List<Clause> getClauses(String data) throws ProblogParseException {
 		StringReader sr = new StringReader(data);
 		DatalogTokenizer dt = new DatalogTokenizer(sr);
 		return ProblogParser.parseProgram(dt);
-    }
-	
+	}
+
 	/**
 	 * Convert data string to AST database
+	 * 
 	 * @param data
 	 * @return ProblogProgram
-	 * @throws DatalogParseException
-	 * @throws ProblogValidationException 
+	 * @throws ProblogParseException
+	 * @throws ProblogValidationException
 	 */
-	public static ProblogProgram getProgram(String data) throws DatalogParseException, ProblogValidationException {
+	public static ProblogProgramOLD getProgram(String data) throws ProblogParseException, ProblogValidationException {
 		List<Clause> ast = getClauses(data);
-		return new ProblogValidator().withUncertainty().validate(ast);
-    }
-	
+		return new ProblogValidatorOld().withUncertainty().validate(ast);
+	}
+
 	/**
 	 * Convert query string to AST model
+	 * 
 	 * @param query
 	 * @return PositiveAtom
-	 * @throws DatalogParseException
-	 * @throws ProblogValidationException 
+	 * @throws ProblogParseException
+	 * @throws ProblogValidationException
 	 */
-	public static PositiveAtom getGoal(String query) throws DatalogParseException, ProblogValidationException {
+	public static Atom getGoal(String query) throws ProblogParseException, ProblogValidationException {
 		StringReader sr = new StringReader(query);
 		DatalogTokenizer dt = new DatalogTokenizer(sr);
-		
+
 		return ProblogParser.parseQuery(dt);
-    }
-	
+	}
+
 	/**
 	 * Convert AST result(s) to string (either list of atoms or T/F)
+	 * 
 	 * @param goal
 	 * @param results
 	 * @return result(s) string
 	 */
-	public static String setResults(PositiveAtom goal, Set<PositiveAtom> results) {
+	public static String setResults(Atom goal, Set<Atom> results) {
 		throw new UnsupportedOperationException("ASTHelper 'setResults' method not supported yet.");
 	}
 }

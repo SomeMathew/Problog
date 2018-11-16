@@ -10,17 +10,16 @@ import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
 import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Premise;
-import edu.comp6591.problog.ast.Atom;
 
 public class FactsTupleGenerator {
-	private List<List<Atom>> facts;
+	private List<List<AtomKey>> facts;
 	private List<MutableInteger> nextFactsPos;
 	private boolean done;
 	private int size;
 	private boolean failureRegistered = false;
 	private int failurePosition = -1;
 
-	public FactsTupleGenerator(Clause rule, Map<PredicateSym, Set<Atom>> factsByPredicate) {
+	public FactsTupleGenerator(Clause rule, Map<PredicateSym, Set<AtomKey>> factsByPredicate) {
 		this.size = rule.getBody().size();
 		facts = new ArrayList<>(size);
 		nextFactsPos = new ArrayList<>(size);
@@ -42,8 +41,8 @@ public class FactsTupleGenerator {
 	 * 
 	 * @return
 	 */
-	public List<Atom> next() {
-		List<Atom> nextTuple = null;
+	public List<AtomKey> next() {
+		List<AtomKey> nextTuple = null;
 		if (!done) {
 			nextTuple = new ArrayList<>(facts.size());
 			for (int i = 0; i < facts.size(); i++) {

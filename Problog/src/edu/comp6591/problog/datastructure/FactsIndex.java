@@ -16,25 +16,24 @@ import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Term;
 import abcdatalog.ast.visitors.TermVisitor;
 import abcdatalog.ast.visitors.TermVisitorBuilder;
-import edu.comp6591.problog.ast.Atom;
 
 /**
  * Data structure to index Predicates and the position of constants in a set of
  * facts.
  */
 public class FactsIndex {
-	private Map<PredicateSym, Map<ConstantPosition, Set<Atom>>> index;
+	private Map<PredicateSym, Map<ConstantPosition, Set<AtomKey>>> index;
 
 	public FactsIndex() {
 		this.index = new HashMap<>();
 	}
 
-	public void addFacts(Collection<Atom> facts) {
+	public void addFacts(Collection<AtomKey> facts) {
 		facts.forEach(this::addFact);
 	}
 
-	public void addFact(Atom fact) {
-		Map<ConstantPosition, Set<Atom>> consPosMap = index.get(fact.getPred());
+	public void addFact(AtomKey fact) {
+		Map<ConstantPosition, Set<AtomKey>> consPosMap = index.get(fact.getPred());
 		if (consPosMap == null) {
 			consPosMap = new HashMap<>();
 			index.put(fact.getPred(), consPosMap);
@@ -44,7 +43,7 @@ public class FactsIndex {
 		for (int i = 0; i < terms.length; i++) {
 			ConstantPosition key = new ConstantPosition(i, (Constant) terms[i]);
 
-			Set<Atom> factSet = consPosMap.get(key);
+			Set<AtomKey> factSet = consPosMap.get(key);
 			if (factSet == null) {
 				factSet = new HashSet<>();
 				consPosMap.put(key, factSet);
@@ -53,18 +52,18 @@ public class FactsIndex {
 		}
 	}
 
-	public Set<Atom> retrieve(PredicateSym predicate, List<ConstantPosition> constantPositions) {
-		Set<Atom> facts = null;
-		Map<ConstantPosition, Set<Atom>> consPosMap = index.get(predicate);
+	public Set<AtomKey> retrieve(PredicateSym predicate, List<ConstantPosition> constantPositions) {
+		Set<AtomKey> facts = null;
+		Map<ConstantPosition, Set<AtomKey>> consPosMap = index.get(predicate);
 		if (consPosMap != null) {
 
-			List<Set<Atom>> factsNonIntersected = constantPositions.stream().filter(consPosMap::containsKey)
+			List<Set<AtomKey>> factsNonIntersected = constantPositions.stream().filter(consPosMap::containsKey)
 					.map((key) -> consPosMap.get(key)).collect(toList());
 		}
 		return facts;
 	}
 
-	public Set<Atom> retrieve(PositiveAtom atom) {
+	public Set<AtomKey> retrieve(PositiveAtom atom) {
 		List<ConstantPosition> positions = new LinkedList<>();
 
 		Term[] args = atom.getArgs();
