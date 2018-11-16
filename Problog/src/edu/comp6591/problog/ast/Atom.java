@@ -1,4 +1,4 @@
-package edu.comp6591.problog.datastructure;
+package edu.comp6591.problog.ast;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -7,11 +7,11 @@ import abcdatalog.ast.PositiveAtom;
 import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Term;
 
-public class AtomKey {
+public class Atom {
 	private PredicateSym pred;
 	private Term[] args;
 
-	public AtomKey(PositiveAtom atom) {
+	public Atom(PositiveAtom atom) {
 		pred = atom.getPred();
 		args = atom.getArgs();
 	}
@@ -33,7 +33,7 @@ public class AtomKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AtomKey other = (AtomKey) obj;
+		Atom other = (Atom) obj;
 		if (!Arrays.equals(args, other.args))
 			return false;
 		if (pred == null) {
