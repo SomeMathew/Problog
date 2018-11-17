@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.*;
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
 	private IProblogProgram program;
-	private FactsRepository facts;
+	private FactsRepository factsRepo;
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -56,21 +56,22 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	}
 
 	private void evaluate() {
-		this.facts = new FactsRepository(initEDBFacts(program.getInitialFacts()));
+		this.factsRepo = new FactsRepository(initEDBFacts(program.getInitialFacts()));
 
 		Set<Atom> newDerivedFacts = new HashSet<>();
 		do {
+			this.factsRepo.lock(); // Prevents inconsistent state, defensive measure.
 			Map<Atom, Double> newFactsCertainty = infer();
-
+			this.factsRepo.unlock();
 			// Update newDerivedFacts and the factsByPredicate Index.
 			newDerivedFacts.clear();
 			for (Entry<Atom, Double> factEntry : newFactsCertainty.entrySet()) {
-				Double oldValue = facts.getCertainty(factEntry.getKey());
+				Double oldValue = factsRepo.getCertainty(factEntry.getKey());
 				if (oldValue == null || factEntry.getValue() > oldValue) {
 					newDerivedFacts.add(factEntry.getKey());
 				}
 			}
-			facts.putAllIDBFacts(newFactsCertainty);
+			factsRepo.putAllIDBFacts(newFactsCertainty);
 
 		} while (!newDerivedFacts.isEmpty());
 	}
@@ -102,7 +103,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
 
 		for (Clause rule : program.getRules()) {
-			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, facts);
+			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, factsRepo);
 
 			// TODO implement an hasNext...
 			List<Atom> candidate = generator.next();
@@ -147,7 +148,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private Double computeHeadCertainty(Clause rule, List<Atom> factInstantiation) {
 		// The conjunction function has greatest element if empty
 		Double conjunction = GREATEST_ELEMENT;
-		List<Double> bodyCertainties = factInstantiation.stream().map(facts::getCertainty).collect(toList());
+		List<Double> bodyCertainties = factInstantiation.stream().map(factsRepo::getCertainty).collect(toList());
 		conjunction = conjunction(bodyCertainties);
 
 		return propagation(conjunction, rule.getCertainty());
@@ -191,7 +192,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 	@Override
 	public Map<Atom, Double> getComputedDatabase() {
-		return facts.getAllFacts();
+		return factsRepo.getAllFacts();
 	}
 
 }
