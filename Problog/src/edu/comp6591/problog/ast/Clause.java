@@ -11,13 +11,13 @@ import com.google.common.collect.ImmutableList;
  * Equality between clause is defined as all parts being equal: Head, Body and
  * certainty.
  */
-public class Clause implements IFact, IRule {
+public class Clause {
 	private final Atom head;
 	private final ImmutableList<Atom> body;
-	private final Certainty certainty;
+	private final double certainty;
 	private final boolean isGround;
 
-	public Clause(Atom head, List<Atom> body, Certainty ruleCertainty) {
+	public Clause(Atom head, List<Atom> body, double ruleCertainty) {
 		if (head == null) {
 			throw new IllegalArgumentException("The head cannot be null");
 		}
@@ -31,22 +31,18 @@ public class Clause implements IFact, IRule {
 		this.isGround = this.head.isGround() && this.body.stream().allMatch(Atom::isGround);
 	}
 
-	@Override
 	public Atom getHead() {
 		return head;
 	}
 
-	@Override
 	public ImmutableList<Atom> getBody() {
 		return body;
 	}
 
-	@Override
-	public Certainty getCertainty() {
+	public double getCertainty() {
 		return certainty;
 	}
 
-	@Override
 	public boolean isGround() {
 		return isGround;
 	}
@@ -56,7 +52,9 @@ public class Clause implements IFact, IRule {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((body == null) ? 0 : body.hashCode());
-		result = prime * result + ((certainty == null) ? 0 : certainty.hashCode());
+		long temp;
+		temp = Double.doubleToLongBits(certainty);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + ((head == null) ? 0 : head.hashCode());
 		return result;
 	}
@@ -75,10 +73,7 @@ public class Clause implements IFact, IRule {
 				return false;
 		} else if (!body.equals(other.body))
 			return false;
-		if (certainty == null) {
-			if (other.certainty != null)
-				return false;
-		} else if (!certainty.equals(other.certainty))
+		if (Double.doubleToLongBits(certainty) != Double.doubleToLongBits(other.certainty))
 			return false;
 		if (head == null) {
 			if (other.head != null)

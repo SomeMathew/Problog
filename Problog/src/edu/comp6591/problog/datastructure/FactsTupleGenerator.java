@@ -1,57 +1,55 @@
 package edu.comp6591.problog.datastructure;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
-import abcdatalog.ast.Clause;
-import abcdatalog.ast.PositiveAtom;
-import abcdatalog.ast.PredicateSym;
-import abcdatalog.ast.Premise;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+
+import edu.comp6591.problog.ast.Atom;
+import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.ast.Predicate;
 
 public class FactsTupleGenerator {
-	private List<List<AtomKey>> facts;
+	private List<List<Atom>> facts;
 	private List<MutableInteger> nextFactsPos;
 	private boolean done;
 	private int size;
 	private boolean failureRegistered = false;
 	private int failurePosition = -1;
 
-	public FactsTupleGenerator(Clause rule, Map<PredicateSym, Set<AtomKey>> factsByPredicate) {
+	public FactsTupleGenerator(Clause rule, Multimap<Predicate, Atom> factsByPredicate) {
 		this.size = rule.getBody().size();
 		facts = new ArrayList<>(size);
 		nextFactsPos = new ArrayList<>(size);
-		List<Premise> premises = rule.getBody();
+		List<Atom> body = rule.getBody();
 
-		premises.stream().map((premise) -> {
-			PredicateSym pred = ((PositiveAtom) premise).getPred();
-			return factsByPredicate.getOrDefault(pred, new TreeSet<>());
-		}).map(ArrayList::new).forEach((factList) -> {
-			facts.add(factList);
+		for (Atom atom : body) {
+			List<Atom> candidateFacts = ImmutableList.copyOf(factsByPredicate.get(atom.getPred()));
+			facts.add(candidateFacts);
 			nextFactsPos.add(new MutableInteger(0));
-		});
+		}
 
-		done = facts.isEmpty() || facts.stream().anyMatch(List::isEmpty);
+		done = facts.isEmpty() || facts.stream().anyMatch(Collection::isEmpty);
 	}
 
 	/**
 	 * Get the next list of candidate facts for unification.
 	 * 
-	 * @return
+	 * @return The next tuple of candidate facts, it will be empty if no more
+	 *         possible
 	 */
-	public List<AtomKey> next() {
-		List<AtomKey> nextTuple = null;
+	public List<Atom> next() {
+		ImmutableList.Builder<Atom> builder = new ImmutableList.Builder<Atom>();
 		if (!done) {
-			nextTuple = new ArrayList<>(facts.size());
 			for (int i = 0; i < facts.size(); i++) {
 				int nextPos = nextFactsPos.get(i).get();
-				nextTuple.add(facts.get(i).get(nextPos));
+				builder.add(facts.get(i).get(nextPos));
 			}
 			prepareNext();
 		}
-		return nextTuple;
+		return builder.build();
 	}
 
 	/**

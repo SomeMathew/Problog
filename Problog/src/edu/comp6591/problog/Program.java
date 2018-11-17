@@ -4,7 +4,7 @@ import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.engine.IProblogEngine;
 import edu.comp6591.problog.engine.ProblogEngineFactory;
 import edu.comp6591.problog.util.FileHelper;
-import edu.comp6591.problog.validation.ProblogProgramOLD;
+import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.util.ASTHelper;
 import java.util.Scanner;
 import java.util.Set;
@@ -25,7 +25,7 @@ public class Program {
 			String path = scan.nextLine();
 
 			String data = FileHelper.getFile(path);
-			ProblogProgramOLD program = ASTHelper.getProgram(data);
+			IProblogProgram program = ASTHelper.getProgram(data);
 			engine.init(program);
 			System.out.println("\nDatabase Result:");
 			engine.getComputedDatabase().entrySet().forEach(System.out::println);

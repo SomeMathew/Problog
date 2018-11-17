@@ -5,9 +5,9 @@ import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.parser.ProblogParseException;
 import edu.comp6591.problog.parser.ProblogParser;
-import edu.comp6591.problog.validation.ProblogProgramOLD;
+import edu.comp6591.problog.validation.IProblogProgram;
+import edu.comp6591.problog.validation.ProblogProgramCreator;
 import edu.comp6591.problog.validation.ProblogValidationException;
-import edu.comp6591.problog.validation.ProblogValidatorOld;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Set;
@@ -38,9 +38,9 @@ public class ASTHelper {
 	 * @throws ProblogParseException
 	 * @throws ProblogValidationException
 	 */
-	public static ProblogProgramOLD getProgram(String data) throws ProblogParseException, ProblogValidationException {
+	public static IProblogProgram getProgram(String data) throws ProblogParseException, ProblogValidationException {
 		List<Clause> ast = getClauses(data);
-		return new ProblogValidatorOld().withUncertainty().validate(ast);
+		return ProblogProgramCreator.create(ast);
 	}
 
 	/**

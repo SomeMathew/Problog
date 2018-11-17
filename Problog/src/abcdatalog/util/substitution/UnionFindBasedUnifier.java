@@ -19,6 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
+
 import edu.comp6591.problog.ast.Constant;
 import edu.comp6591.problog.ast.ITerm;
 import edu.comp6591.problog.ast.Variable;
@@ -77,6 +79,22 @@ public class UnionFindBasedUnifier {
 			r[i] = t;
 		}
 		return r;
+	}
+
+	public List<ITerm> apply(List<ITerm> original) {
+		ImmutableList.Builder<ITerm> builder = new ImmutableList.Builder<>();
+		Iterator<ITerm> iter = original.iterator();
+		while (iter.hasNext()) {
+			ITerm t = iter.next();
+			if (t instanceof Variable) {
+				ITerm s = this.get((Variable) t);
+				if (s != null) {
+					t = s;
+				}
+			}
+			builder.add(t);
+		}
+		return builder.build();
 	}
 
 	/**

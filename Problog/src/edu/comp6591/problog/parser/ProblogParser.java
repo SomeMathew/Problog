@@ -20,7 +20,6 @@ import java.util.List;
 
 import abcdatalog.parser.DatalogTokenizer;
 import edu.comp6591.problog.ast.Atom;
-import edu.comp6591.problog.ast.Certainty;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.Constant;
 import edu.comp6591.problog.ast.ITerm;
@@ -119,7 +118,7 @@ public final class ProblogParser {
 		}
 		t.consume(".");
 
-		return new Clause(head, body, new Certainty(probability == null ? 1 : probability));
+		return new Clause(head, body, probability == null ? 1 : probability);
 	}
 
 	private static Atom parseConjunct(DatalogTokenizer t) throws ProblogParseException {
