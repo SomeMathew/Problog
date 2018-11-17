@@ -11,7 +11,7 @@ import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.Predicate;
 
-public class FactsTupleGenerator {
+public class CandidateTupleGenerator {
 	private List<List<Atom>> facts;
 	private List<MutableInteger> nextFactsPos;
 	private boolean done;
@@ -19,7 +19,7 @@ public class FactsTupleGenerator {
 	private boolean failureRegistered = false;
 	private int failurePosition = -1;
 
-	public FactsTupleGenerator(Clause rule, Multimap<Predicate, Atom> factsByPredicate) {
+	public CandidateTupleGenerator(Clause rule, Multimap<Predicate, Atom> factsByPredicate) {
 		this.size = rule.getBody().size();
 		facts = new ArrayList<>(size);
 		nextFactsPos = new ArrayList<>(size);

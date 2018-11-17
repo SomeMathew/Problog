@@ -5,7 +5,7 @@ import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.ITerm;
 import edu.comp6591.problog.ast.Predicate;
 import edu.comp6591.problog.ast.TermVisitor;
-import edu.comp6591.problog.datastructure.FactsTupleGenerator;
+import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
 import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
@@ -119,7 +119,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
 
 		for (Clause rule : program.getRules()) {
-			FactsTupleGenerator generator = new FactsTupleGenerator(rule, factsAtomIndex);
+			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, factsAtomIndex);
 
 			// TODO implement an hasNext...
 			List<Atom> candidate = generator.next();
@@ -166,7 +166,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @param candidateGroundFacts
 	 * @return
 	 */
-	private Atom produce(FactsTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
+	private Atom produce(CandidateTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
 		List<Atom> ruleBody = rule.getBody();
 
 		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
