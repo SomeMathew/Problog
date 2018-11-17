@@ -12,7 +12,7 @@
  *
  * See README for contributors.
  ******************************************************************************/
-package edu.comp6591.problog;
+package edu.comp6591.problog.parser;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

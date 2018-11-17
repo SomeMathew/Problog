@@ -12,7 +12,7 @@
  *
  * See README for contributors.
  ******************************************************************************/
-package edu.comp6591.problog;
+package edu.comp6591.problog.parser;
 
 /**
  * An exception signifying a parsing error.

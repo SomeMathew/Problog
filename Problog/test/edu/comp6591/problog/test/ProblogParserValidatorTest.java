@@ -3,7 +3,7 @@ package edu.comp6591.problog.test;
 import abcdatalog.ast.Clause;
 import abcdatalog.ast.PositiveAtom;
 import abcdatalog.parser.DatalogTokenizer;
-import edu.comp6591.problog.ProblogParseException;
+import edu.comp6591.problog.parser.ProblogParseException;
 import edu.comp6591.problog.util.ASTHelper;
 import edu.comp6591.problog.validation.ProblogProgramOLD;
 import edu.comp6591.problog.validation.ProblogValidationException;

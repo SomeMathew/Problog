@@ -1,10 +1,10 @@
 package edu.comp6591.problog.util;
 
 import abcdatalog.parser.DatalogTokenizer;
-import edu.comp6591.problog.ProblogParseException;
-import edu.comp6591.problog.ProblogParser;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.parser.ProblogParseException;
+import edu.comp6591.problog.parser.ProblogParser;
 import edu.comp6591.problog.validation.ProblogProgramOLD;
 import edu.comp6591.problog.validation.ProblogValidationException;
 import edu.comp6591.problog.validation.ProblogValidatorOld;

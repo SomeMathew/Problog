@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StreamTokenizer;
 
-import edu.comp6591.problog.ProblogParseException;
+import edu.comp6591.problog.parser.ProblogParseException;
 
 /**
  * A tokenizer for Datalog. <br>
