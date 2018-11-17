@@ -176,7 +176,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 					|| nextAtom.getPred().getArity() != nextCandidate.getPred().getArity()) {
 				unifies = false;
 			} else {
-				unifies = ProblogEngineBase.unifyArgs(mgu, nextAtom.getArgs(), nextCandidate.getArgs());
+				unifies = unifyArgs(mgu, nextAtom.getArgs(), nextCandidate.getArgs());
 			}
 		}
 

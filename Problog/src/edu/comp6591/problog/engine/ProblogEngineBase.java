@@ -61,14 +61,14 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	 * @param factTerms
 	 * @return True if it could successfully unify the terms.
 	 */
-	public static boolean unifyArgs(UnionFindBasedUnifier mgu, List<ITerm> ruleTerms, List<ITerm> factTerms) {
+	protected boolean unifyArgs(UnionFindBasedUnifier mgu, List<ITerm> ruleTerms, List<ITerm> factTerms) {
 		if (mgu == null || ruleTerms.size() != factTerms.size()) {
 			throw new IllegalArgumentException("This won't unify ->  rule: " + ruleTerms + ", fact: " + factTerms);
 		}
 		boolean unifies = true;
 		Iterator<ITerm> iterRule = ruleTerms.iterator();
 		Iterator<ITerm> iterFact = factTerms.iterator();
-	
+
 		while (unifies && iterRule.hasNext() && iterFact.hasNext()) {
 			ITerm ruleTerm = iterRule.next();
 			ITerm factTerm = iterFact.next();
