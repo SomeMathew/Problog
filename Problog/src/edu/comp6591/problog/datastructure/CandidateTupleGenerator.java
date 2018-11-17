@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableList;
 
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
-import edu.comp6591.problog.engine.FactsRepository;
 
 public class CandidateTupleGenerator {
 	private List<List<Atom>> facts;

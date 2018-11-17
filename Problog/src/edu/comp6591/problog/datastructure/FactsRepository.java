@@ -1,4 +1,4 @@
-package edu.comp6591.problog.engine;
+package edu.comp6591.problog.datastructure;
 
 import java.util.Collection;
 import java.util.HashMap;

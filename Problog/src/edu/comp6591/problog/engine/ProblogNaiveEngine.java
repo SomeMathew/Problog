@@ -5,6 +5,7 @@ import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.ITerm;
 import edu.comp6591.problog.ast.TermVisitor;
 import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
+import edu.comp6591.problog.datastructure.FactsRepository;
 import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
