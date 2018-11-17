@@ -2,15 +2,12 @@ package edu.comp6591.problog.engine;
 
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
-import edu.comp6591.problog.ast.ITerm;
-import edu.comp6591.problog.ast.TermVisitor;
 import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
 import edu.comp6591.problog.datastructure.FactsRepository;
 import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -124,6 +121,12 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		return combineGroundFacts(certaintyBags);
 	}
 
+	/**
+	 * Combines bags of Certainty with the disjunction function for each atom.
+	 * 
+	 * @param certaintyBags
+	 * @return Map of Atom to combined certainty
+	 */
 	private ImmutableMap<Atom, Double> combineGroundFacts(ListMultimap<Atom, Double> certaintyBags) {
 		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
 
@@ -133,23 +136,31 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		return builder.build();
 	}
 
-	private Double computeHeadCertainty(Clause clause, List<Atom> factInstantiation) {
+	/**
+	 * Applies the conjunction function to the list of facts and propagate with the
+	 * clause certainty parameter.
+	 * 
+	 * @param rule              Rule to compute the head certainty for
+	 * @param factInstantiation List of body facts to retrieve the certainty from
+	 * @return Derived Certainty for the rule.
+	 */
+	private Double computeHeadCertainty(Clause rule, List<Atom> factInstantiation) {
 		// The conjunction function has greatest element if empty
 		Double conjunction = GREATEST_ELEMENT;
 		List<Double> bodyCertainties = factInstantiation.stream().map(facts::getCertainty).collect(toList());
 		conjunction = conjunction(bodyCertainties);
 
-		return propagation(conjunction, clause.getCertainty());
+		return propagation(conjunction, rule.getCertainty());
 	}
 
 	/**
-	 * Produce a ground fact from applying Elementary Production to a rule and
-	 * candidate ground fact.
+	 * Produce a ground fact from applying Elementary Production to a rule and a
+	 * list of candidate ground fact.
 	 * 
-	 * @param generator
-	 * @param rule
-	 * @param candidateGroundFacts
-	 * @return
+	 * @param generator            Generator used to generate the candidateFacts
+	 * @param rule                 Rule to try unifying
+	 * @param candidateGroundFacts Ordered List of candidate Facts for the rule
+	 * @return Ground Fact produced from the rule or null if it cannot unify
 	 */
 	public Atom produce(CandidateTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
 		List<Atom> ruleBody = rule.getBody();
@@ -165,7 +176,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 					|| nextAtom.getPred().getArity() != nextCandidate.getPred().getArity()) {
 				unifies = false;
 			} else {
-				unifies = unifyArgs(mgu, nextAtom.getArgs(), nextCandidate.getArgs());
+				unifies = ProblogEngineBase.unifyArgs(mgu, nextAtom.getArgs(), nextCandidate.getArgs());
 			}
 		}
 
@@ -176,32 +187,6 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		} else {
 			return new Atom(headAtom.getPred(), mgu.apply(headAtom.getArgs()));
 		}
-	}
-
-	/**
-	 * Try to unify the array of terms, this will update the Unifier.
-	 * 
-	 * @param mgu
-	 * @param ruleTerms
-	 * @param factTerms
-	 * @return True if it could successfully unify the terms.
-	 */
-	private boolean unifyArgs(UnionFindBasedUnifier mgu, List<ITerm> ruleTerms, List<ITerm> factTerms) {
-		if (mgu == null || ruleTerms.size() != factTerms.size()) {
-			throw new IllegalArgumentException("This won't unify ->  rule: " + ruleTerms + ", fact: " + factTerms);
-		}
-		boolean unifies = true;
-		Iterator<ITerm> iterRule = ruleTerms.iterator();
-		Iterator<ITerm> iterFact = factTerms.iterator();
-
-		while (unifies && iterRule.hasNext() && iterFact.hasNext()) {
-			ITerm ruleTerm = iterRule.next();
-			ITerm factTerm = iterFact.next();
-			TermVisitor<Boolean> tv = TermVisitor.build((var) -> mgu.unify(var, factTerm),
-					(cons) -> cons.equals(factTerm));
-			unifies = ruleTerm.accept(tv);
-		}
-		return unifies;
 	}
 
 	@Override
