@@ -14,14 +14,14 @@ import edu.comp6591.problog.ast.Predicate;
 public class FactsRepository {
 
 	private SetMultimap<Predicate, Atom> factsAtomIndex;
-	private ImmutableMap<Atom, Double> edbFacts;
-	private Map<Atom, Double> dbFacts;
+	private ImmutableMap<Atom, Double> edbValuations;
+	private Map<Atom, Double> factsValuation;
 	private volatile boolean settersLocked = false;
 
 	public FactsRepository(ImmutableMap<Atom, Double> edbFacts) {
 		this.factsAtomIndex = HashMultimap.create();
-		dbFacts = new HashMap<>();
-		setEDBFacts(edbFacts);
+		factsValuation = new HashMap<>();
+		setEDBValuations(edbFacts);
 	}
 
 	public synchronized void lock() {
@@ -38,29 +38,29 @@ public class FactsRepository {
 		}
 	}
 
-	private void setEDBFacts(ImmutableMap<Atom, Double> edbFacts) {
+	private void setEDBValuations(ImmutableMap<Atom, Double> edbFacts) {
 		validateLock();
-		this.edbFacts = edbFacts;
+		this.edbValuations = edbFacts;
 		edbFacts.forEach((atom, certainty) -> {
 			factsAtomIndex.put(atom.getPred(), atom);
-			dbFacts.put(atom, certainty);
+			factsValuation.put(atom, certainty);
 		});
 	}
 
-	public synchronized void putIDBFact(Atom atom, Double certainty) {
+	public synchronized void putFactValuation(Atom atom, Double certainty) {
 		validateLock();
 		this.factsAtomIndex.put(atom.getPred(), atom);
-		this.dbFacts.put(atom, certainty);
+		this.factsValuation.put(atom, certainty);
 	}
 
-	public synchronized void putAllIDBFacts(Map<Atom, Double> facts) {
+	public synchronized void putAllFactValuations(Map<Atom, Double> facts) {
 		validateLock();
-		dbFacts.putAll(facts);
+		factsValuation.putAll(facts);
 		facts.keySet().forEach((atom) -> factsAtomIndex.put(atom.getPred(), atom));
 	}
 
-	public Double getCertainty(Atom atom) {
-		return dbFacts.get(atom);
+	public Double getValuation(Atom atom) {
+		return factsValuation.get(atom);
 	}
 
 	public ImmutableList<Atom> getAtoms(Predicate pred) {
@@ -68,6 +68,6 @@ public class FactsRepository {
 	}
 
 	public ImmutableMap<Atom, Double> getAllFacts() {
-		return ImmutableMap.copyOf(this.dbFacts);
+		return ImmutableMap.copyOf(this.factsValuation);
 	}
 }

@@ -58,22 +58,22 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private void evaluate() {
 		this.factsRepo = new FactsRepository(initEDBFacts(program.getInitialFacts()));
 
-		Set<Atom> newDerivedFacts = new HashSet<>();
+		Set<Atom> factsWithNewValuations = new HashSet<>();
 		do {
 			this.factsRepo.lock(); // Prevents inconsistent state, defensive measure.
-			Map<Atom, Double> newFactsCertainty = infer();
+			Map<Atom, Double> newFactsValuations = infer();
 			this.factsRepo.unlock();
-			// Update newDerivedFacts and the factsByPredicate Index.
-			newDerivedFacts.clear();
-			for (Entry<Atom, Double> factEntry : newFactsCertainty.entrySet()) {
-				Double oldValue = factsRepo.getCertainty(factEntry.getKey());
+			// Update the set of atoms with new better valuations.
+			factsWithNewValuations.clear();
+			for (Entry<Atom, Double> factEntry : newFactsValuations.entrySet()) {
+				Double oldValue = factsRepo.getValuation(factEntry.getKey());
 				if (oldValue == null || factEntry.getValue() > oldValue) {
-					newDerivedFacts.add(factEntry.getKey());
+					factsWithNewValuations.add(factEntry.getKey());
 				}
 			}
-			factsRepo.putAllIDBFacts(newFactsCertainty);
+			factsRepo.putAllFactValuations(newFactsValuations);
 
-		} while (!newDerivedFacts.isEmpty());
+		} while (!factsWithNewValuations.isEmpty());
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	private Double computeHeadCertainty(Clause rule, List<Atom> factInstantiation) {
 		// The conjunction function has greatest element if empty
 		Double conjunction = GREATEST_ELEMENT;
-		List<Double> bodyCertainties = factInstantiation.stream().map(factsRepo::getCertainty).collect(toList());
+		List<Double> bodyCertainties = factInstantiation.stream().map(factsRepo::getValuation).collect(toList());
 		conjunction = conjunction(bodyCertainties);
 
 		return propagation(conjunction, rule.getCertainty());
