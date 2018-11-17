@@ -14,29 +14,28 @@
  ******************************************************************************/
 package abcdatalog.util.substitution;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import abcdatalog.ast.Constant;
-import abcdatalog.ast.Term;
-import abcdatalog.ast.Variable;
+import edu.comp6591.problog.ast.Constant;
+import edu.comp6591.problog.ast.ITerm;
+import edu.comp6591.problog.ast.Variable;
 
 /**
  * A mapping from variables to terms. Implemented using a union-find data
  * structure.
  * 
  */
-public class UnionFindBasedUnifier implements TermUnifier {
+public class UnionFindBasedUnifier {
 	/**
 	 * Map implementation of a union-find (also known as a disjoint-set) data
-	 * structure. This represents a substitution in that a variable is treated
-	 * as bound to the representative element of the set it is in. If there is a
+	 * structure. This represents a substitution in that a variable is treated as
+	 * bound to the representative element of the set it is in. If there is a
 	 * constant in the set, the representative element will be a constant.
 	 */
-	private final Map<Term, Term> uf;
+	private final Map<ITerm, ITerm> uf;
 
 	/**
 	 * Constructs an empty substitution.
@@ -48,8 +47,7 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	/**
 	 * Constructs a substitution from another substitution.
 	 * 
-	 * @param other
-	 *            the other substitution
+	 * @param other the other substitution
 	 */
 	public UnionFindBasedUnifier(UnionFindBasedUnifier other) {
 		this.uf = new LinkedHashMap<>(other.uf);
@@ -58,23 +56,20 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	/**
 	 * Retrieves the mapping of a variable.
 	 * 
-	 * @param x
-	 *            the variable
-	 * @return the term that the variable is bound to, or null if the variable
-	 *         is not in the substitution
+	 * @param x the variable
+	 * @return the term that the variable is bound to, or null if the variable is
+	 *         not in the substitution
 	 */
-	@Override
-	public Term get(Variable x) {
+	public ITerm get(Variable x) {
 		return this.find(x);
 	}
 
-	@Override
-	public Term[] apply(Term[] original) {
-		Term[] r = new Term[original.length];
+	public ITerm[] apply(ITerm[] original) {
+		ITerm[] r = new ITerm[original.length];
 		for (int i = 0; i < original.length; ++i) {
-			Term t = original[i];
+			ITerm t = original[i];
 			if (t instanceof Variable) {
-				Term s = this.get((Variable) t);
+				ITerm s = this.get((Variable) t);
 				if (s != null) {
 					t = s;
 				}
@@ -87,13 +82,11 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	/**
 	 * Creates a substitution from unifying two lists of terms.
 	 * 
-	 * @param xs
-	 *            the first list
-	 * @param ys
-	 *            the second list
+	 * @param xs the first list
+	 * @param ys the second list
 	 * @return the substitution, or null if the two lists do not unify
 	 */
-	public static UnionFindBasedUnifier fromTerms(List<Term> xs, List<Term> ys) {
+	public static UnionFindBasedUnifier fromTerms(List<ITerm> xs, List<ITerm> ys) {
 		// Lists of different sizes cannot be unified.
 		if (xs.size() != ys.size()) {
 			return null;
@@ -102,22 +95,22 @@ public class UnionFindBasedUnifier implements TermUnifier {
 		// Initialize union-find data structure so that each term from both
 		// lists is in a singleton set.
 		UnionFindBasedUnifier r = new UnionFindBasedUnifier();
-		for (Term x : xs) {
+		for (ITerm x : xs) {
 			r.uf.put(x, x);
 		}
-		for (Term y : ys) {
+		for (ITerm y : ys) {
 			r.uf.put(y, y);
 		}
 
 		// Generate substitution by iterating through both atoms concurrently.
-		Iterator<Term> xiter = xs.iterator();
-		Iterator<Term> yiter = ys.iterator();
+		Iterator<ITerm> xiter = xs.iterator();
+		Iterator<ITerm> yiter = ys.iterator();
 		while (xiter.hasNext()) {
-			Term x = xiter.next();
-			Term y = yiter.next();
+			ITerm x = xiter.next();
+			ITerm y = yiter.next();
 
-			Term xroot = r.find(x);
-			Term yroot = r.find(y);
+			ITerm xroot = r.find(x);
+			ITerm yroot = r.find(y);
 
 			// Already in same set.
 			if (xroot == yroot)
@@ -133,40 +126,37 @@ public class UnionFindBasedUnifier implements TermUnifier {
 
 		return r;
 	}
-	
-	/**
-	 * Creates a substitution from unifying two arrays of terms.
-	 * 
-	 * @param xs
-	 *            the first array
-	 * @param ys
-	 *            the second array
-	 * @return the substitution, or null if the two lists do not unify
-	 */
-	public static Substitution fromTerms(Term[] elts, Term[] elts2) {
-		// TODO this is inefficient
-		return fromTerms(Arrays.asList(elts), Arrays.asList(elts2));
-	}
+
+//	/**
+//	 * Creates a substitution from unifying two arrays of terms.
+//	 * 
+//	 * @param xs
+//	 *            the first array
+//	 * @param ys
+//	 *            the second array
+//	 * @return the substitution, or null if the two lists do not unify
+//	 */
+//	public static Substitution fromTerms(ITerm[] elts, ITerm[] elts2) {
+//		// TODO this is inefficient
+//		return fromTerms(Arrays.asList(elts), Arrays.asList(elts2));
+//	}
 
 	/**
-	 * Adds a mapping from a variable to a term. Throws an
-	 * IllegalArgumentException if doing so would result in a variable mapping
-	 * to multiple constants.
+	 * Adds a mapping from a variable to a term. Throws an IllegalArgumentException
+	 * if doing so would result in a variable mapping to multiple constants.
 	 * 
-	 * @param v
-	 *            the variable
-	 * @param t
-	 *            the term
-	 * @throws IllegalArgumentException
-	 *             If the variable is already mapped to a different term
+	 * @param v the variable
+	 * @param t the term
+	 * @throws IllegalArgumentException If the variable is already mapped to a
+	 *                                  different term
 	 */
-	public void put(Variable v, Term t) {
-		Term vroot = this.find(v);
+	public void put(Variable v, ITerm t) {
+		ITerm vroot = this.find(v);
 		if (vroot == null) {
 			vroot = v;
 		}
 
-		Term troot = this.find(t);
+		ITerm troot = this.find(t);
 		if (troot == null) {
 			troot = t;
 		}
@@ -175,9 +165,8 @@ public class UnionFindBasedUnifier implements TermUnifier {
 			return;
 
 		if (vroot instanceof Constant && troot instanceof Constant) {
-			throw new IllegalArgumentException("Variable " + v.getName()
-					+ " already mapped to " + ((Constant) vroot).getName()
-					+ "; cannot remap to " + ((Constant) troot).getName() + ".");
+			throw new IllegalArgumentException("Variable " + v.getName() + " already mapped to "
+					+ ((Constant) vroot).getName() + "; cannot remap to " + ((Constant) troot).getName() + ".");
 		}
 
 		this.uf.put(v, vroot);
@@ -188,14 +177,12 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	/**
 	 * Unions the sets of two terms in the union-find data structure.
 	 * 
-	 * @param x
-	 *            the first term
-	 * @param y
-	 *            the second term
+	 * @param x the first term
+	 * @param y the second term
 	 */
-	private void union(Term x, Term y) {
-		Term xroot = this.find(x);
-		Term yroot = this.find(y);
+	private void union(ITerm x, ITerm y) {
+		ITerm xroot = this.find(x);
+		ITerm yroot = this.find(y);
 		assert xroot != null && yroot != null;
 
 		// Keep constants at root of tree.
@@ -207,24 +194,23 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	}
 
 	/**
-	 * Retrieves the representative element of the set that contains a certain
-	 * term in the union-find data structure.
+	 * Retrieves the representative element of the set that contains a certain term
+	 * in the union-find data structure.
 	 * 
-	 * @param x
-	 *            the term
-	 * @return the representative element, or null if the provided term is not
-	 *         in the data structure
+	 * @param x the term
+	 * @return the representative element, or null if the provided term is not in
+	 *         the data structure
 	 */
-	private Term find(Term x) {
-		Term child = x;
-		Term parent = this.uf.get(child);
+	private ITerm find(ITerm x) {
+		ITerm child = x;
+		ITerm parent = this.uf.get(child);
 		if (parent == null) {
 			return null;
 		}
 
 		// When the child is equal to the parent, we have reached the root.
 		while (!child.equals(parent)) {
-			Term grandparent = this.uf.get(parent);
+			ITerm grandparent = this.uf.get(parent);
 			// Simple path compression.
 			this.uf.put(child, grandparent);
 			child = grandparent;
@@ -237,8 +223,8 @@ public class UnionFindBasedUnifier implements TermUnifier {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
-		for (Iterator<Term> it = this.uf.keySet().iterator(); it.hasNext();) {
-			Term key = it.next();
+		for (Iterator<ITerm> it = this.uf.keySet().iterator(); it.hasNext();) {
+			ITerm key = it.next();
 			if (key instanceof Variable) {
 				sb.append(key + "->" + find(key));
 				if (it.hasNext()) {
@@ -250,14 +236,13 @@ public class UnionFindBasedUnifier implements TermUnifier {
 		return sb.toString();
 	}
 
-	@Override
-	public boolean unify(Variable u, Term v) {
-		Term uroot = this.find(u);
+	public boolean unify(Variable u, ITerm v) {
+		ITerm uroot = this.find(u);
 		if (uroot == null) {
 			uroot = u;
 		}
 
-		Term vroot = this.find(v);
+		ITerm vroot = this.find(v);
 		if (vroot == null) {
 			vroot = v;
 		}
@@ -265,11 +250,11 @@ public class UnionFindBasedUnifier implements TermUnifier {
 		if (uroot.equals(vroot)) {
 			return true;
 		}
-		
+
 		if (vroot instanceof Constant && uroot instanceof Constant) {
 			return false;
 		}
-		
+
 		this.uf.put(v, vroot);
 		this.uf.put(u, uroot);
 		union(v, u);

@@ -53,7 +53,7 @@ import abcdatalog.ast.visitors.TermVisitor;
 import abcdatalog.ast.visitors.TermVisitorBuilder;
 import abcdatalog.util.Box;
 import abcdatalog.util.substitution.TermUnifier;
-import abcdatalog.util.substitution.UnionFindBasedUnifier;
+import abcdatalog.util.substitution.UnionFindBasedUnifierOld;
 
 /**
  * A validator for a set of clauses in a datalog program with uncertainty. It
@@ -134,7 +134,7 @@ public class ProblogValidatorOld {
 	private ValidProblogClause checkRule(Clause clause) throws ProblogValidationException {
 		Set<Variable> boundVars = new HashSet<>();
 		Set<Variable> possiblyUnboundVars = new HashSet<>();
-		TermUnifier subst = new UnionFindBasedUnifier();
+		TermUnifier subst = new UnionFindBasedUnifierOld();
 
 		TermVisitor<Set<Variable>, Set<Variable>> tv = (new TermVisitorBuilder<Set<Variable>, Set<Variable>>())
 				.onVariable((x, set) -> {

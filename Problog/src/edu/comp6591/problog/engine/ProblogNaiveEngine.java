@@ -8,7 +8,7 @@ import abcdatalog.ast.PredicateSym;
 import abcdatalog.ast.Premise;
 import abcdatalog.ast.Term;
 import abcdatalog.ast.Variable;
-import abcdatalog.util.substitution.UnionFindBasedUnifier;
+import abcdatalog.util.substitution.UnionFindBasedUnifierOld;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.datastructure.AtomKey;
 import edu.comp6591.problog.datastructure.FactsTupleGenerator;
@@ -170,7 +170,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			List<AtomKey> candidateGroundFacts) {
 		List<Premise> ruleBody = rule.getBody();
 
-		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
+		UnionFindBasedUnifierOld mgu = new UnionFindBasedUnifierOld();
 		boolean unifies = true;
 		int i;
 		for (i = 0; i < ruleBody.size() && unifies; i++) {
@@ -205,7 +205,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @param factTerms
 	 * @return True if it could successfully unify the terms.
 	 */
-	private boolean unifyArgs(UnionFindBasedUnifier mgu, Term[] ruleTerms, Term[] factTerms) {
+	private boolean unifyArgs(UnionFindBasedUnifierOld mgu, Term[] ruleTerms, Term[] factTerms) {
 		boolean unifies = true;
 		for (int t = 0; t < ruleTerms.length && unifies; t++) {
 			if (ruleTerms[t] instanceof Variable) {
