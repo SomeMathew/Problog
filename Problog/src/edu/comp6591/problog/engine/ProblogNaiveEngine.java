@@ -3,7 +3,6 @@ package edu.comp6591.problog.engine;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.ITerm;
-import edu.comp6591.problog.ast.Predicate;
 import edu.comp6591.problog.ast.TermVisitor;
 import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
 import edu.comp6591.problog.validation.IProblogProgram;
@@ -16,12 +15,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
 
 import abcdatalog.util.substitution.UnionFindBasedUnifier;
 
@@ -32,9 +29,7 @@ import static java.util.stream.Collectors.*;
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
 	private IProblogProgram program;
-	private SetMultimap<Predicate, Atom> factsAtomIndex;
-	private Map<Atom, Double> edbFacts = null;
-	private Map<Atom, Double> idbFacts = null;
+	private FactsRepository facts;
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -48,7 +43,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
 		this.program = program; // TODO probably change that to a constructor
-		idbFacts = evaluate();
+		evaluate(); // TODO maybe return something ?
 	}
 
 	/**
@@ -62,30 +57,24 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		throw new UnsupportedOperationException("ProblogNaiveEngine 'query' method not supported yet.");
 	}
 
-	private Map<Atom, Double> evaluate() {
-		factsAtomIndex = HashMultimap.create();
-		Map<Atom, Double> lastFactsCertainty = initEDBFacts(program.getInitialFacts());
+	private void evaluate() {
+		this.facts = new FactsRepository(initEDBFacts(program.getInitialFacts()));
 
 		Set<Atom> newDerivedFacts = new HashSet<>();
 		do {
-			Map<Atom, Double> newFactsCertainty = infer(lastFactsCertainty);
+			Map<Atom, Double> newFactsCertainty = infer();
 
 			// Update newDerivedFacts and the factsByPredicate Index.
 			newDerivedFacts.clear();
 			for (Entry<Atom, Double> factEntry : newFactsCertainty.entrySet()) {
-				Double oldValue = lastFactsCertainty.get(factEntry.getKey());
+				Double oldValue = facts.getCertainty(factEntry.getKey());
 				if (oldValue == null || factEntry.getValue() > oldValue) {
 					newDerivedFacts.add(factEntry.getKey());
 				}
-				if (oldValue == null) {
-					factsAtomIndex.put(factEntry.getKey().getPred(), factEntry.getKey());
-				}
 			}
-			lastFactsCertainty = new ImmutableMap.Builder<Atom, Double>().putAll(newFactsCertainty).putAll(edbFacts)
-					.build();
-		} while (!newDerivedFacts.isEmpty());
+			facts.putAllIDBFacts(newFactsCertainty);
 
-		return lastFactsCertainty;
+		} while (!newDerivedFacts.isEmpty());
 	}
 
 	/**
@@ -94,16 +83,14 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @param initialFacts
 	 * @return Combined certainty for each Atom facts.
 	 */
-	private Map<Atom, Double> initEDBFacts(List<Clause> initialFacts) {
+	private ImmutableMap<Atom, Double> initEDBFacts(List<Clause> initialFacts) {
 		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
 
 		for (Clause c : initialFacts) {
 			certaintyBags.put(c.getHead(), c.getCertainty());
-			factsAtomIndex.put(c.getHead().getPred(), c.getHead());
 		}
-		edbFacts = combineGroundFacts(certaintyBags);
 
-		return edbFacts;
+		return combineGroundFacts(certaintyBags);
 	}
 
 	/**
@@ -111,15 +98,13 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * facts that can be inferred in one step from the given list of facts
 	 * 
 	 * 
-	 * @param lastCertainties The combined certainties from last iteration for all
-	 *                        ground facts.
 	 * @return Map of ground facts and their certainties found in this iteration.
 	 */
-	private Map<Atom, Double> infer(Map<Atom, Double> lastCertainties) {
+	private Map<Atom, Double> infer() {
 		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
 
 		for (Clause rule : program.getRules()) {
-			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, factsAtomIndex);
+			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, facts);
 
 			// TODO implement an hasNext...
 			List<Atom> candidate = generator.next();
@@ -128,7 +113,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 				Atom groundFact = produce(generator, rule, candidate);
 
 				if (groundFact != null) {
-					Double headCertainty = computeHeadCertainty(rule, candidate, lastCertainties);
+					Double headCertainty = computeHeadCertainty(rule, candidate);
 					certaintyBags.put(groundFact, headCertainty);
 				}
 				candidate = generator.next();
@@ -138,7 +123,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		return combineGroundFacts(certaintyBags);
 	}
 
-	private Map<Atom, Double> combineGroundFacts(ListMultimap<Atom, Double> certaintyBags) {
+	private ImmutableMap<Atom, Double> combineGroundFacts(ListMultimap<Atom, Double> certaintyBags) {
 		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
 
 		for (Entry<Atom, List<Double>> bagEntry : Multimaps.asMap(certaintyBags).entrySet()) {
@@ -147,11 +132,10 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		return builder.build();
 	}
 
-	private Double computeHeadCertainty(Clause clause, List<Atom> factInstantiation,
-			Map<Atom, Double> lastCertainties) {
+	private Double computeHeadCertainty(Clause clause, List<Atom> factInstantiation) {
 		// The conjunction function has greatest element if empty
 		Double conjunction = GREATEST_ELEMENT;
-		List<Double> bodyCertainties = factInstantiation.stream().map(lastCertainties::get).collect(toList());
+		List<Double> bodyCertainties = factInstantiation.stream().map(facts::getCertainty).collect(toList());
 		conjunction = conjunction(bodyCertainties);
 
 		return propagation(conjunction, clause.getCertainty());
@@ -166,7 +150,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 	 * @param candidateGroundFacts
 	 * @return
 	 */
-	private Atom produce(CandidateTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
+	public Atom produce(CandidateTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
 		List<Atom> ruleBody = rule.getBody();
 
 		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
@@ -221,7 +205,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 	@Override
 	public Map<Atom, Double> getComputedDatabase() {
-		return idbFacts;
+		return facts.getAllFacts();
 	}
 
 }

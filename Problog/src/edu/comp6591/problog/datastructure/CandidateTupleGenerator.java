@@ -5,11 +5,10 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Multimap;
 
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
-import edu.comp6591.problog.ast.Predicate;
+import edu.comp6591.problog.engine.FactsRepository;
 
 public class CandidateTupleGenerator {
 	private List<List<Atom>> facts;
@@ -19,14 +18,14 @@ public class CandidateTupleGenerator {
 	private boolean failureRegistered = false;
 	private int failurePosition = -1;
 
-	public CandidateTupleGenerator(Clause rule, Multimap<Predicate, Atom> factsByPredicate) {
+	public CandidateTupleGenerator(Clause rule, FactsRepository factsRepo) {
 		this.size = rule.getBody().size();
-		facts = new ArrayList<>(size);
+		this.facts = new ArrayList<>(size);
 		nextFactsPos = new ArrayList<>(size);
 		List<Atom> body = rule.getBody();
 
 		for (Atom atom : body) {
-			List<Atom> candidateFacts = ImmutableList.copyOf(factsByPredicate.get(atom.getPred()));
+			List<Atom> candidateFacts = factsRepo.getAtoms(atom.getPred());
 			facts.add(candidateFacts);
 			nextFactsPos.add(new MutableInteger(0));
 		}
