@@ -17,7 +17,6 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Multimaps;
 
 /**
  * Naive algorithm to process the Problog database
@@ -108,21 +107,6 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		}
 
 		return combineGroundFacts(certaintyBags);
-	}
-
-	/**
-	 * Combines bags of Certainty with the disjunction function for each atom.
-	 * 
-	 * @param certaintyBags
-	 * @return Map of Atom to combined certainty
-	 */
-	private ImmutableMap<Atom, Double> combineGroundFacts(ListMultimap<Atom, Double> certaintyBags) {
-		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
-
-		for (Entry<Atom, List<Double>> bagEntry : Multimaps.asMap(certaintyBags).entrySet()) {
-			builder.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
-		}
-		return builder.build();
 	}
 
 	@Override
