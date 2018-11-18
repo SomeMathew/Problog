@@ -1,9 +1,10 @@
-package edu.comp6591.problog.engine;
+package edu.comp6591.problog.engine.naive;
 
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
 import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.engine.ProblogEngineBase;
 import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
@@ -17,10 +18,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
-
-import abcdatalog.util.substitution.UnionFindBasedUnifier;
-
-import static java.util.stream.Collectors.*;
 
 /**
  * Naive algorithm to process the Problog database
@@ -105,18 +102,9 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		for (Clause rule : program.getRules()) {
 			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, factsRepo);
 
-			// TODO implement an hasNext...
-			List<Atom> candidate = generator.next();
-
-			while (!candidate.isEmpty()) {
-				Atom groundFact = produce(generator, rule, candidate);
-
-				if (groundFact != null) {
-					Double headCertainty = computeHeadCertainty(rule, candidate);
-					certaintyBags.put(groundFact, headCertainty);
-				}
-				candidate = generator.next();
-			}
+			ProblogNaiveClauseEvaluator evaluator = new ProblogNaiveClauseEvaluator(rule, factsRepo, generator);
+			evaluator.evaluate();
+			certaintyBags.putAll(evaluator.getEvaluationResult());
 		}
 
 		return combineGroundFacts(certaintyBags);
@@ -135,59 +123,6 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			builder.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
 		}
 		return builder.build();
-	}
-
-	/**
-	 * Applies the conjunction function to the list of facts and propagate with the
-	 * clause certainty parameter.
-	 * 
-	 * @param rule              Rule to compute the head certainty for
-	 * @param factInstantiation List of body facts to retrieve the certainty from
-	 * @return Derived Certainty for the rule.
-	 */
-	private Double computeHeadCertainty(Clause rule, List<Atom> factInstantiation) {
-		// The conjunction function has greatest element if empty
-		Double conjunction = GREATEST_ELEMENT;
-		List<Double> bodyCertainties = factInstantiation.stream().map(factsRepo::getValuation).collect(toList());
-		conjunction = conjunction(bodyCertainties);
-
-		return propagation(conjunction, rule.getCertainty());
-	}
-
-	/**
-	 * Produce a ground fact from applying Elementary Production to a rule and a
-	 * list of candidate ground fact.
-	 * 
-	 * @param generator            Generator used to generate the candidateFacts
-	 * @param rule                 Rule to try unifying
-	 * @param candidateGroundFacts Ordered List of candidate Facts for the rule
-	 * @return Ground Fact produced from the rule or null if it cannot unify
-	 */
-	public Atom produce(CandidateTupleGenerator generator, Clause rule, List<Atom> candidateFacts) {
-		List<Atom> ruleBody = rule.getBody();
-
-		UnionFindBasedUnifier mgu = new UnionFindBasedUnifier();
-		boolean unifies = true;
-		int i;
-		for (i = 0; i < ruleBody.size() && unifies; i++) {
-			Atom nextAtom = ruleBody.get(i);
-			Atom nextCandidate = candidateFacts.get(i);
-
-			if (!nextAtom.getPred().getSymbol().equals(nextCandidate.getPred().getSymbol())
-					|| nextAtom.getPred().getArity() != nextCandidate.getPred().getArity()) {
-				unifies = false;
-			} else {
-				unifies = unifyArgs(mgu, nextAtom.getArgs(), nextCandidate.getArgs());
-			}
-		}
-
-		Atom headAtom = rule.getHead();
-		if (!unifies && !headAtom.isGround()) {
-			generator.registerFail(i - 1);
-			return null;
-		} else {
-			return new Atom(headAtom.getPred(), mgu.apply(headAtom.getArgs()));
-		}
 	}
 
 	@Override

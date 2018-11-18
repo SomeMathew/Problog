@@ -1,5 +1,7 @@
 package edu.comp6591.problog.engine;
 
+import edu.comp6591.problog.engine.naive.ProblogNaiveEngine;
+
 /**
  * Problog engine factory
  */

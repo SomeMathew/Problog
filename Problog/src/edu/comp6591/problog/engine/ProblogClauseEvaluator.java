@@ -15,6 +15,7 @@ import edu.comp6591.problog.datastructure.FactsRepository;
 
 public abstract class ProblogClauseEvaluator {
 	private CandidateTupleGenerator generator;
+	private boolean evaluated;
 
 	protected Clause rule;
 	protected FactsRepository factsRepo;
@@ -23,24 +24,34 @@ public abstract class ProblogClauseEvaluator {
 		this.rule = rule;
 		this.factsRepo = factsRepo;
 		this.generator = generator;
+		this.evaluated = false;
 	}
 
-	public void evaluate() {
-		// TODO implement an hasNext...
-		List<Atom> candidateInstance = generator.next();
+	public boolean evaluate() {
+		if (!evaluated) {
+			// TODO implement an hasNext...
+			List<Atom> candidateInstance = generator.next();
 
-		while (!candidateInstance.isEmpty()) {
-			ProductionResult production = produce(this.rule, candidateInstance);
-			if (production.isUnified()) {
-				Atom groundFact = production.getAtom();
-				newGroundFactAction(groundFact, candidateInstance);
-			} else {
-				generator.registerFail(production.getFailurePosition());
+			while (!candidateInstance.isEmpty()) {
+				ProductionResult production = produce(this.rule, candidateInstance);
+				if (production.isUnified()) {
+					Atom groundFact = production.getAtom();
+					newGroundFactAction(groundFact, candidateInstance);
+				} else {
+					generator.registerFail(production.getFailurePosition());
+				}
+				candidateInstance = generator.next();
 			}
-			candidateInstance = generator.next();
-		}
 
-		completeAction();
+			completeAction();
+
+			evaluated = true;
+		}
+		return evaluated;
+	}
+
+	public boolean isEvaluated() {
+		return evaluated;
 	}
 
 	protected abstract void newGroundFactAction(Atom groundFact, List<Atom> candidateInstance);
