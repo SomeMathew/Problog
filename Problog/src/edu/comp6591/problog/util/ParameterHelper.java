@@ -1,5 +1,6 @@
 package edu.comp6591.problog.util;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class ParameterHelper {
 	 * @param list
 	 * @return final certainty
 	 */
-	public static Double independence(List<Double> list) {
+	public static Double independence(Collection<Double> list) {
 		double result = 0;
 		for (Double probability : list) {
 			result += probability - (result * probability);
@@ -28,7 +29,7 @@ public class ParameterHelper {
 	 * @param list
 	 * @return final certainty
 	 */
-	public static Double minimum(List<Double> list) {
+	public static Double minimum(Collection<Double> list) {
 		return Collections.min(list);
 	}
 

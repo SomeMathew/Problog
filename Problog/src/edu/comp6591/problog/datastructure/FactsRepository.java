@@ -6,6 +6,7 @@ import java.util.Map;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 
 import edu.comp6591.problog.ast.Atom;
@@ -63,8 +64,12 @@ public class FactsRepository {
 		return factsValuation.get(atom);
 	}
 
-	public ImmutableList<Atom> getAtoms(Predicate pred) {
+	public ImmutableList<Atom> getAtomsAsList(Predicate pred) {
 		return ImmutableList.copyOf(factsAtomIndex.get(pred));
+	}
+
+	public ImmutableSet<Atom> getAtomsAsSet(Predicate pred) {
+		return ImmutableSet.copyOf(factsAtomIndex.get(pred));
 	}
 
 	public ImmutableMap<Atom, Double> getAllFacts() {
