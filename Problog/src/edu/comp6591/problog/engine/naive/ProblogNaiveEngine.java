@@ -9,12 +9,10 @@ import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 
@@ -70,22 +68,6 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			factsRepo.putAllFactValuations(newFactsValuations);
 
 		} while (!factsWithNewValuations.isEmpty());
-	}
-
-	/**
-	 * Initializes the first combined certainty map for the EDB facts.
-	 * 
-	 * @param initialFacts
-	 * @return Combined certainty for each Atom facts.
-	 */
-	private ImmutableMap<Atom, Double> initEDBFacts(List<Clause> initialFacts) {
-		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
-
-		for (Clause c : initialFacts) {
-			certaintyBags.put(c.getHead(), c.getCertainty());
-		}
-
-		return combineGroundFacts(certaintyBags);
 	}
 
 	/**

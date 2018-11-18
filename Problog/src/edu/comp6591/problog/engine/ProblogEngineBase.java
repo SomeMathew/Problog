@@ -1,17 +1,16 @@
 package edu.comp6591.problog.engine;
 
 import edu.comp6591.problog.ast.Atom;
-import edu.comp6591.problog.ast.ITerm;
-import edu.comp6591.problog.ast.TermVisitor;
+import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.util.ParameterHelper;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 
@@ -70,5 +69,21 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 			builder.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
 		}
 		return builder.build();
+	}
+
+	/**
+	 * Compute the valuations for the EDB facts.
+	 * 
+	 * @param initialFacts
+	 * @return Valuation for each Atom facts.
+	 */
+	protected ImmutableMap<Atom, Double> initEDBFacts(List<Clause> initialFacts) {
+		ListMultimap<Atom, Double> certaintyBags = LinkedListMultimap.create();
+
+		for (Clause c : initialFacts) {
+			certaintyBags.put(c.getHead(), c.getCertainty());
+		}
+
+		return combineGroundFacts(certaintyBags);
 	}
 }
