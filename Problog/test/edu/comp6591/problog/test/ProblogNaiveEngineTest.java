@@ -19,79 +19,79 @@ public class ProblogNaiveEngineTest {
 	private String program;
 	private String query;
 	private IProblogProgram validProgram;
-        private IProblogEngine engine;
+	private IProblogEngine engine;
 	private Atom goal;
 	private Set<Atom> results;
-        
+
 	@Test
 	public void NoUncertaintyCalculationTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
 		program = "parent(mary,anna) : 1.0."
-                        + "parent(john,anna) : 1.0."
-                        + "parent(anna,daniel) : 1.0."
-                        + "ancestor(X,Y) :- parent(X,Y): 1.0."
-                        + "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 1.0.";
+			+ "parent(john,anna) : 1.0."
+			+ "parent(anna,daniel) : 1.0."
+			+ "ancestor(X,Y) :- parent(X,Y): 1.0."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 1.0.";
 		validProgram = ASTHelper.getProgram(program);
-                engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive);
-                engine.init(validProgram);
-                System.out.println("No uncertainty:\n" + engine.getComputedDatabase().toString());
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("No uncertainty:\n" + engine.getComputedDatabase().toString());
 //		query = "ancestor(mary,daniel)?";
 //		goal = ASTHelper.getGoal(query);
-//              results = engine.query(goal);
-//              System.out.println(results.toString());
-//              TODO: assert
+//		results = engine.query(goal);
+//		System.out.println(results.toString());
+//		TODO: assert
 	}
-        
+
 	@Test
 	public void SimpleFactsUncertaintyCalculationTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
 		program = "parent(mary,anna) : 0.5."
-                        + "parent(john,anna) : 0.5."
-                        + "parent(anna,daniel) : 0.8."
-                        + "ancestor(X,Y) :- parent(X,Y): 1.0."
-                        + "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 1.0.";
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "ancestor(X,Y) :- parent(X,Y): 1.0."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 1.0.";
 		validProgram = ASTHelper.getProgram(program);
-                engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive);
-                engine.init(validProgram);
-                System.out.println("Simple facts uncertainty:\n" + engine.getComputedDatabase().toString());
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Simple facts uncertainty:\n" + engine.getComputedDatabase().toString());
 //		query = "ancestor(mary,daniel)?";
 //		goal = ASTHelper.getGoal(query);
-//              results = engine.query(goal);
-//              System.out.println(results.toString());
-//              TODO: assert
+//		results = engine.query(goal);
+//		System.out.println(results.toString());
+//		TODO: assert
 	}
-        
+
 	@Test
 	public void SimpleRulesUncertaintyCalculationTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
 		program = "parent(mary,anna) : 1.0."
-                        + "parent(john,anna) : 1.0."
-                        + "parent(anna,daniel) : 1.0."
-                        + "ancestor(X,Y) :- parent(X,Y): 0.8."
-                        + "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+			+ "parent(john,anna) : 1.0."
+			+ "parent(anna,daniel) : 1.0."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-                engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive);
-                engine.init(validProgram);
-                System.out.println("Simple rules uncertainty:\n" + engine.getComputedDatabase().toString());
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Simple rules uncertainty:\n" + engine.getComputedDatabase().toString());
 //		query = "ancestor(mary,daniel)?";
 //		goal = ASTHelper.getGoal(query);
-//              results = engine.query(goal);
-//              System.out.println(results.toString());
-//              TODO: assert
+//		results = engine.query(goal);
+//		System.out.println(results.toString());
+//		TODO: assert
 	}
-        
+
 	@Test
 	public void SimpleUncertaintyCalculationTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
 		program = "parent(mary,anna) : 0.5."
-                        + "parent(john,anna) : 0.5."
-                        + "parent(anna,daniel) : 0.8."
-                        + "ancestor(X,Y) :- parent(X,Y): 0.8."
-                        + "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-                engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive);
-                engine.init(validProgram);
-                System.out.println("Simple uncertainty:\n" + engine.getComputedDatabase().toString());
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Simple uncertainty:\n" + engine.getComputedDatabase().toString());
 //		query = "ancestor(mary,daniel)?";
 //		goal = ASTHelper.getGoal(query);
-//              results = engine.query(goal);
-//              System.out.println(results.toString());
-//              TODO: assert
+//		results = engine.query(goal);
+//		System.out.println(results.toString());
+//		TODO: assert
 	}
 }

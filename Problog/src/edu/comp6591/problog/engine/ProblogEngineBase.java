@@ -14,6 +14,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
+import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.datastructure.MultisetHashMap;
+import edu.comp6591.problog.validation.IProblogProgram;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class defining common methods and variables for all Problog engines
@@ -25,6 +30,14 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	public static final Function<Collection<Double>, Double> disjunctionParam = ParameterHelper::independence;
 	public static final Function<Collection<Double>, Double> conjunctionParam = ParameterHelper::minimum;
 	public static final BinaryOperator<Double> propagationParam = ParameterHelper::product;
+
+	protected IProblogProgram program;
+	protected FactsRepository factsRepo;
+
+	public ProblogEngineBase(IProblogProgram program)
+	{
+		this.program = program;
+	}
 
 	/**
 	 * Apply and execute independence function for disjunction parameter
@@ -65,9 +78,23 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	 */
 	protected ImmutableMap<Atom, Double> combineGroundFacts(ListMultimap<Atom, Double> certaintyBags) {
 		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
-
 		for (Entry<Atom, List<Double>> bagEntry : Multimaps.asMap(certaintyBags).entrySet()) {
 			builder.put(bagEntry.getKey(), disjunction(bagEntry.getValue()));
+		}
+		return builder.build();
+	}
+
+	/**
+	 * Combines bags of valuation with the disjunction function for each changed atom.
+	 * 
+	 * @param changedAtom
+	 * @param valuationBags
+	 * @return Map of Atom of new valuations
+	 */
+	protected ImmutableMap<Atom, Double> computeNewValuations(Set<Atom> changedAtom, MultisetHashMap<Atom, Double> valuationBags) {
+		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
+		for (Atom atom : changedAtom) {
+			builder.put(atom, disjunction(valuationBags.get(atom)));
 		}
 		return builder.build();
 	}
@@ -86,5 +113,22 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 		}
 
 		return combineGroundFacts(certaintyBags);
+	}
+
+	@Override
+	public Map<Atom, Double> getComputedDatabase() {
+		return factsRepo.getAllFacts();
+	}
+
+	/**
+	 * Browse the engine's database and return the result(s) of the given query
+	 * 
+	 * @param query
+	 * @return result(s)
+	 */
+	@Override
+	public Set<Atom> query(Atom query) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Method stub");
 	}
 }

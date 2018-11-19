@@ -20,8 +20,10 @@ import com.google.common.collect.ListMultimap;
  * Naive algorithm to process the Problog database
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
-	private IProblogProgram program;
-	private FactsRepository factsRepo;
+
+	public ProblogNaiveEngine(IProblogProgram program) {
+		super(program);
+	}
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -34,19 +36,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
-		this.program = program; // TODO probably change that to a constructor
 		evaluate(); // TODO maybe return something ?
-	}
-
-	/**
-	 * Browse the engine's database and return the result(s) of the given query
-	 * 
-	 * @param query
-	 * @return result(s)
-	 */
-	@Override
-	public Set<Atom> query(Atom query) { // TODO this need to be changed to a list??
-		throw new UnsupportedOperationException("ProblogNaiveEngine 'query' method not supported yet.");
 	}
 
 	private void evaluate() {
@@ -90,10 +80,4 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 		return combineGroundFacts(certaintyBags);
 	}
-
-	@Override
-	public Map<Atom, Double> getComputedDatabase() {
-		return factsRepo.getAllFacts();
-	}
-
 }

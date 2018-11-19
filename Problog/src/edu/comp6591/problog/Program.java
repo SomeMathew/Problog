@@ -17,22 +17,29 @@ public class Program {
 
 			System.out.println("Please enter the mode of the processing engine (1 for naive, 2 for semi-naive):");
 			String mode = scan.nextLine();
-
 			ProblogEngineFactory.Mode flag = ProblogEngineFactory.parseMode(mode);
-			IProblogEngine engine = ProblogEngineFactory.createEngine(flag);
 
 			System.out.println("Please enter the path of the file containing the initial facts and rules:");
 			String path = scan.nextLine();
-
 			String data = FileHelper.getFile(path);
 			IProblogProgram program = ASTHelper.getProgram(data);
+
+			IProblogEngine engine = ProblogEngineFactory.createEngine(flag, program);
 			engine.init(program);
-			System.out.println("\nDatabase Result:");
-			engine.getComputedDatabase().entrySet().forEach(System.out::println);
 
-			System.out.println("The data is processed and ready to use. Please enter your query (or 0 to stop):");
+			System.out.println("The data is processed and ready to use. Would you like to print the resulting database (y/n)?");
+			String print = scan.nextLine();
+			switch (print.toLowerCase())
+			{
+				case "y":
+				case "yes":
+					System.out.println("\nDatabase Result:");
+					engine.getComputedDatabase().entrySet().forEach(System.out::println);
+					break;
+			}
+
+			System.out.println("Please enter your query (or 0 to stop):");
 			String query = scan.nextLine();
-
 			while (!query.equals("0")) {
 				Atom goal = ASTHelper.getGoal(query);
 				Set<Atom> results = engine.query(goal);

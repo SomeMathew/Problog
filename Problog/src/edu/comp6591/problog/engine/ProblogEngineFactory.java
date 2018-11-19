@@ -2,6 +2,7 @@ package edu.comp6591.problog.engine;
 
 import edu.comp6591.problog.engine.naive.ProblogNaiveEngine;
 import edu.comp6591.problog.engine.seminaive.ProblogSemiNaiveEngine;
+import edu.comp6591.problog.validation.IProblogProgram;
 
 /**
  * Problog engine factory
@@ -16,15 +17,16 @@ public class ProblogEngineFactory {
 	 * Create engine according to mode
 	 * 
 	 * @param mode
+	 * @param program
 	 * @return desired engine
 	 * @throws ProblogEngineException
 	 */
-	public static IProblogEngine createEngine(Mode mode) throws ProblogEngineException {
+	public static IProblogEngine createEngine(Mode mode, IProblogProgram program) throws ProblogEngineException {
 		switch (mode) {
 		case Naive:
-			return new ProblogNaiveEngine();
+			return new ProblogNaiveEngine(program);
 		case SemiNaive:
-			return new ProblogSemiNaiveEngine();
+			return new ProblogSemiNaiveEngine(program);
 		default:
 			throw new ProblogEngineException("The engine mode is not implemented");
 		}
