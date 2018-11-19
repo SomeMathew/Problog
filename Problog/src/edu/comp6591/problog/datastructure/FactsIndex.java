@@ -10,40 +10,39 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.*;
 
-import abcdatalog.ast.Constant;
-import abcdatalog.ast.PositiveAtom;
-import abcdatalog.ast.PredicateSym;
-import abcdatalog.ast.Term;
-import abcdatalog.ast.visitors.TermVisitor;
-import abcdatalog.ast.visitors.TermVisitorBuilder;
+import edu.comp6591.problog.ast.Constant;
+import edu.comp6591.problog.ast.Atom;
+import edu.comp6591.problog.ast.Predicate;
+import edu.comp6591.problog.ast.ITerm;
+import edu.comp6591.problog.ast.TermVisitor;
 
 /**
  * Data structure to index Predicates and the position of constants in a set of
  * facts.
  */
 public class FactsIndex {
-	private Map<PredicateSym, Map<ConstantPosition, Set<AtomKey>>> index;
+	private Map<Predicate, Map<ConstantPosition, Set<Atom>>> index;
 
 	public FactsIndex() {
 		this.index = new HashMap<>();
 	}
 
-	public void addFacts(Collection<AtomKey> facts) {
+	public void addFacts(Collection<Atom> facts) {
 		facts.forEach(this::addFact);
 	}
 
-	public void addFact(AtomKey fact) {
-		Map<ConstantPosition, Set<AtomKey>> consPosMap = index.get(fact.getPred());
+	public void addFact(Atom fact) {
+		Map<ConstantPosition, Set<Atom>> consPosMap = index.get(fact.getPred());
 		if (consPosMap == null) {
 			consPosMap = new HashMap<>();
 			index.put(fact.getPred(), consPosMap);
 		}
 
-		Term[] terms = fact.getArgs();
+		ITerm[] terms = (ITerm[])fact.getArgs().toArray();
 		for (int i = 0; i < terms.length; i++) {
 			ConstantPosition key = new ConstantPosition(i, (Constant) terms[i]);
 
-			Set<AtomKey> factSet = consPosMap.get(key);
+			Set<Atom> factSet = consPosMap.get(key);
 			if (factSet == null) {
 				factSet = new HashSet<>();
 				consPosMap.put(key, factSet);
@@ -52,25 +51,24 @@ public class FactsIndex {
 		}
 	}
 
-	public Set<AtomKey> retrieve(PredicateSym predicate, List<ConstantPosition> constantPositions) {
-		Set<AtomKey> facts = null;
-		Map<ConstantPosition, Set<AtomKey>> consPosMap = index.get(predicate);
+	public Set<Atom> retrieve(Predicate predicate, List<ConstantPosition> constantPositions) {
+		Set<Atom> facts = null;
+		Map<ConstantPosition, Set<Atom>> consPosMap = index.get(predicate);
 		if (consPosMap != null) {
 
-			List<Set<AtomKey>> factsNonIntersected = constantPositions.stream().filter(consPosMap::containsKey)
+			List<Set<Atom>> factsNonIntersected = constantPositions.stream().filter(consPosMap::containsKey)
 					.map((key) -> consPosMap.get(key)).collect(toList());
 		}
 		return facts;
 	}
 
-	public Set<AtomKey> retrieve(PositiveAtom atom) {
+	public Set<Atom> retrieve(Atom atom) {
 		List<ConstantPosition> positions = new LinkedList<>();
 
-		Term[] args = atom.getArgs();
-		TermVisitor<Void, Constant> visitor = new TermVisitorBuilder<Void, Constant>()
-				.onConstant((cons, unused) -> cons).orNull();
+		ITerm[] args = (ITerm[])atom.getArgs().toArray();
+		TermVisitor<Constant> visitor = TermVisitor.build(null, (cons) -> cons);
 		for (int i = 0; i < args.length; i++) {
-			Constant c = args[i].accept(visitor, null);
+			Constant c = args[i].accept(visitor);
 			if (c != null) {
 				positions.add(new ConstantPosition(i, c));
 			}
