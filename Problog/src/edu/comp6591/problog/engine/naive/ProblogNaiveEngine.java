@@ -36,7 +36,11 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
-		evaluate(); // TODO maybe return something ?
+		
+		long start = System.currentTimeMillis();
+		evaluate();
+		long end = System.currentTimeMillis();
+		stats.DurationMS = end - start;
 	}
 
 	private void evaluate() {
@@ -56,7 +60,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 				}
 			}
 			factsRepo.putAllFactValuations(newFactsValuations);
-
+			stats.Iterations++;
 		} while (!factsWithNewValuations.isEmpty());
 	}
 

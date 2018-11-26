@@ -8,7 +8,7 @@ import edu.comp6591.problog.parser.ProblogParseException;
 import edu.comp6591.problog.util.ASTHelper;
 import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
-import java.util.Set;
+import java.util.Map;
 import org.junit.Test;
 
 /**
@@ -21,7 +21,7 @@ public class ProblogSemiNaiveEngineTest {
 	private IProblogProgram validProgram;
 	private IProblogEngine engine;
 	private Atom goal;
-	private Set<Atom> results;
+	private Map<Atom, Double> results;
 
 	@Test
 	public void NoUncertaintyCalculationTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
@@ -34,11 +34,10 @@ public class ProblogSemiNaiveEngineTest {
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("No uncertainty:\n" + engine.getComputedDatabase().toString());
-//		query = "ancestor(mary,daniel)?";
-//		goal = ASTHelper.getGoal(query);
-//		results = engine.query(goal);
-//		System.out.println(results.toString());
-//		TODO: assert
+		query = "ancestor(mary,X)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
 	}
 
 	@Test
@@ -52,11 +51,10 @@ public class ProblogSemiNaiveEngineTest {
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Simple facts uncertainty:\n" + engine.getComputedDatabase().toString());
-//		query = "ancestor(mary,daniel)?";
-//		goal = ASTHelper.getGoal(query);
-//		results = engine.query(goal);
-//		System.out.println(results.toString());
-//		TODO: assert
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
 	}
 
 	@Test
@@ -70,11 +68,10 @@ public class ProblogSemiNaiveEngineTest {
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Simple rules uncertainty:\n" + engine.getComputedDatabase().toString());
-//		query = "ancestor(mary,daniel)?";
-//		goal = ASTHelper.getGoal(query);
-//		results = engine.query(goal);
-//		System.out.println(results.toString());
-//		TODO: assert
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
 	}
 
 	@Test
@@ -88,10 +85,119 @@ public class ProblogSemiNaiveEngineTest {
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Simple uncertainty:\n" + engine.getComputedDatabase().toString());
-//		query = "ancestor(mary,daniel)?";
-//		goal = ASTHelper.getGoal(query);
-//		results = engine.query(goal);
-//		System.out.println(results.toString());
-//		TODO: assert
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void DuplicateFactsTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "parent(anna,daniel) : 0.4."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Duplicate facts:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void DuplicateRulesTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.4."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Duplicate rules:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void CyclicFactsTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "parent(daniel,anna) : 0.4."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Cyclic facts:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void CyclicRulesTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.6."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6."
+			+ "ancestor(X,Y) :- parent(X,Y), ancestor(X,Y) : 0.8.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Cyclic rules:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void MultipathFactsTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(daniel,mary) : 0.8."
+			+ "parent(daniel,john) : 0.4."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Multipath facts:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
+	}
+
+	@Test
+	public void MultipathRulesTest() throws ProblogParseException, ProblogValidationException, ProblogEngineException {
+		program = "parent(mary,anna) : 0.5."
+			+ "parent(john,anna) : 0.5."
+			+ "parent(anna,daniel) : 0.8."
+			+ "father(X,Y) :- parent(X,Y): 0.5."
+			+ "mother(X,Y) :- parent(X,Y): 0.5."
+			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
+			+ "ancestor(X,Y) :- father(X,Z), ancestor(Z,Y) : 0.4."
+			+ "ancestor(X,Y) :- mother(X,Z), ancestor(Z,Y) : 0.6.";
+		validProgram = ASTHelper.getProgram(program);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine.init(validProgram);
+		System.out.println("Multipath rules:\n" + engine.getComputedDatabase().toString());
+		query = "ancestor(mary,daniel)?";
+		goal = ASTHelper.getGoal(query);
+		results = engine.query(goal);
+		System.out.println(results.toString());
 	}
 }

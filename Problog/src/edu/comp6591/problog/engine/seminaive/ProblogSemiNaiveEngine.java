@@ -39,8 +39,12 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
+		
+		long start = System.currentTimeMillis();
 		buildRuleIndex(this.program.getRules());
-		evaluate(); // TODO maybe return something ?
+		evaluate();
+		long end = System.currentTimeMillis();
+		stats.DurationMS = end - start;
 	}
 
 	private void buildRuleIndex(List<Clause> rules) {
@@ -78,6 +82,8 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 
 			// Keep iteration ground rule instance valuation
 			ruleInstanceValuation = newRuleInstanceValuations; // TODO double check that this is right
+			
+			stats.Iterations++;
 		}
 	}
 

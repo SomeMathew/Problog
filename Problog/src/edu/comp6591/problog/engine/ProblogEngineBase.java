@@ -1,5 +1,6 @@
 package edu.comp6591.problog.engine;
 
+import abcdatalog.util.substitution.UnionFindBasedUnifier;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.util.ParameterHelper;
@@ -7,18 +8,20 @@ import edu.comp6591.problog.util.ParameterHelper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.Map;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
+
 import edu.comp6591.problog.datastructure.FactsRepository;
 import edu.comp6591.problog.datastructure.MultisetHashMap;
+import edu.comp6591.problog.datastructure.Statistics;
 import edu.comp6591.problog.validation.IProblogProgram;
-import java.util.Map;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * Base class defining common methods and variables for all Problog engines
@@ -26,17 +29,19 @@ import java.util.Set;
 public abstract class ProblogEngineBase implements IProblogEngine {
 	public static final double LEAST_ELEMENT = 0;
 	public static final double GREATEST_ELEMENT = 1;
-
-	public static final Function<Collection<Double>, Double> disjunctionParam = ParameterHelper::independence;
-	public static final Function<Collection<Double>, Double> conjunctionParam = ParameterHelper::minimum;
-	public static final BinaryOperator<Double> propagationParam = ParameterHelper::product;
+	
+	public static Function<Collection<Double>, Double> disjunctionParam = ParameterHelper::independence;
+	public static Function<Collection<Double>, Double> conjunctionParam = ParameterHelper::minimum;
+	public static Function<Collection<Double>, Double> propagationParam = ParameterHelper::product;
 
 	protected IProblogProgram program;
 	protected FactsRepository factsRepo;
-
+	protected Statistics stats;
+	
 	public ProblogEngineBase(IProblogProgram program)
 	{
 		this.program = program;
+		this.stats = new Statistics();
 	}
 
 	/**
@@ -67,9 +72,32 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	 * @return calculated certainty
 	 */
 	public static Double propagation(Double bodyCertainty, Double ruleCertainty) {
-		return propagationParam.apply(bodyCertainty, ruleCertainty);
+		return propagationParam.apply(Arrays.asList(bodyCertainty, ruleCertainty));
 	}
 
+	/**
+	 * Set the parameter function
+	 * 
+	 * @param param parameter type
+	 * @param function associated function
+	 */
+	@Override
+	public void setParameter(ProblogEngineFactory.Parameter param, Function<Collection<Double>, Double> function) {
+		if (function != null) {
+			switch(param) {
+				case Disjunction:
+					disjunctionParam = function;
+					break;
+				case Conjunction:
+					conjunctionParam = function;
+					break;
+				case Propagation:
+					propagationParam = function;
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * Combines bags of Certainty with the disjunction function for each atom.
 	 * 
@@ -120,6 +148,11 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 		return factsRepo.getAllFacts();
 	}
 
+	@Override
+	public Statistics getStats() {
+		return stats;
+	}
+
 	/**
 	 * Browse the engine's database and return the result(s) of the given query
 	 * 
@@ -127,8 +160,25 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	 * @return result(s)
 	 */
 	@Override
-	public Set<Atom> query(Atom query) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method stub");
+	public Map<Atom, Double> query(Atom query) {
+		if (query == null)
+			return null;
+		
+		ImmutableMap.Builder<Atom, Double> builder = new ImmutableMap.Builder<>();
+		Map<Atom, Double> results = factsRepo.getAllFacts();
+
+		if (query.isGround()) {
+			if (results.containsKey(query)) {
+				builder.put(query, results.get(query));
+			}
+		} else {
+			for(Atom fact : results.keySet()) {
+				if (query.getPred().equals(fact.getPred()) && UnionFindBasedUnifier.fromTerms(query.getArgs(), fact.getArgs()) != null) {
+					builder.put(fact, results.get(fact));
+				}
+			}
+		}
+
+		return builder.build();
 	}
 }

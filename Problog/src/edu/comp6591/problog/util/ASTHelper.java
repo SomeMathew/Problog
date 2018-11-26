@@ -10,7 +10,7 @@ import edu.comp6591.problog.validation.ProblogProgramCreator;
 import edu.comp6591.problog.validation.ProblogValidationException;
 import java.io.StringReader;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * AST model conversion methods
@@ -56,16 +56,5 @@ public class ASTHelper {
 		DatalogTokenizer dt = new DatalogTokenizer(sr);
 
 		return ProblogParser.parseQuery(dt);
-	}
-
-	/**
-	 * Convert AST result(s) to string (either list of atoms or T/F)
-	 * 
-	 * @param goal
-	 * @param results
-	 * @return result(s) string
-	 */
-	public static String setResults(Atom goal, Set<Atom> results) {
-		throw new UnsupportedOperationException("ASTHelper 'setResults' method not supported yet.");
 	}
 }

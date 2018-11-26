@@ -54,10 +54,10 @@ public class ProblogParserValidatorTest {
 	 * @throws ProblogParseException
 	 * @throws ProblogValidationException
 	 */
-	@Test(expected = AssertionError.class)
+	@Test(expected = ProblogParseException.class)
 	public void ProbabilityConstraintTest() throws ProblogParseException, ProblogValidationException {
 		program = "edge(0,1) : 0.5. edge(1,2) : 1.25. tc(X,Y) :- edge(X,Y) : 0.1."
-				+ "tc(X,Y) :- edge(X,Z), tc(Z,Y) : 0.25. cycle(X) :- tc(X,X) : -0.3.";
+				+ "tc(X,Y) :- edge(X,Z), tc(Z,Y) : 0.25. cycle(X) :- tc(X,X) : 1.3.";
 		validProgram = ASTHelper.getProgram(program);
 	}
 
