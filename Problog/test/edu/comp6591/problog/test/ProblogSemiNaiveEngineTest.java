@@ -100,7 +100,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
 			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Duplicate facts:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
@@ -118,7 +118,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- parent(X,Y): 0.4."
 			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Duplicate rules:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
@@ -136,7 +136,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
 			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Cyclic facts:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
@@ -154,7 +154,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6."
 			+ "ancestor(X,Y) :- parent(X,Y), ancestor(X,Y) : 0.8.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Cyclic rules:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
@@ -172,7 +172,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- parent(X,Y): 0.8."
 			+ "ancestor(X,Y) :- parent(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Multipath facts:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
@@ -192,7 +192,7 @@ public class ProblogSemiNaiveEngineTest {
 			+ "ancestor(X,Y) :- father(X,Z), ancestor(Z,Y) : 0.4."
 			+ "ancestor(X,Y) :- mother(X,Z), ancestor(Z,Y) : 0.6.";
 		validProgram = ASTHelper.getProgram(program);
-		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
+		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
 		engine.init(validProgram);
 		System.out.println("Multipath rules:\n" + engine.getComputedDatabase().toString());
 		query = "ancestor(mary,daniel)?";
