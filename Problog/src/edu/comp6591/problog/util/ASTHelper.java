@@ -3,6 +3,7 @@ package edu.comp6591.problog.util;
 import abcdatalog.parser.DatalogTokenizer;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.datastructure.Statistics;
 import edu.comp6591.problog.parser.ProblogParseException;
 import edu.comp6591.problog.parser.ProblogParser;
 import edu.comp6591.problog.validation.IProblogProgram;
@@ -10,7 +11,7 @@ import edu.comp6591.problog.validation.ProblogProgramCreator;
 import edu.comp6591.problog.validation.ProblogValidationException;
 import java.io.StringReader;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * AST model conversion methods
@@ -57,15 +58,52 @@ public class ASTHelper {
 
 		return ProblogParser.parseQuery(dt);
 	}
-
+	
 	/**
-	 * Convert AST result(s) to string (either list of atoms or T/F)
+	 * Convert collection of atoms with uncertainty to readable string
 	 * 
-	 * @param goal
-	 * @param results
-	 * @return result(s) string
+	 * @param facts
+	 * @return facts as string
 	 */
-	public static String setResults(Atom goal, Set<Atom> results) {
-		throw new UnsupportedOperationException("ASTHelper 'setResults' method not supported yet.");
+	public static String printFacts(Map<Atom, Double> facts) {
+		if (facts == null) {
+			return null;
+		}
+		
+		StringBuilder formatted = new StringBuilder();
+		
+		for (Map.Entry<Atom, Double> fact : facts.entrySet()) {
+			formatted.append(fact.getKey().toString())
+				.append(" : ")
+				.append(fact.getValue())
+				.append(".\n");
+		}
+		
+		return formatted.toString();
+	}
+	
+	/**
+	 * Convert statistics to readable string
+	 * 
+	 * @param stats
+	 * @return stats as string
+	 */
+	public static String printStatistics(Statistics stats) {
+		if (stats == null) {
+			return null;
+		}
+		
+		StringBuilder formatted = new StringBuilder();
+		formatted.append("STATISTICS\nExecution time (ms): ")
+			.append(stats.DurationMS)
+			.append("\nNumber of iterations: ")
+			.append(stats.Iterations)
+			.append("\nSize of EDB: ")
+			.append(stats.EDBSize)
+			.append("\nSize of IDB: ")
+			.append(stats.IDBSize)
+			.append("\n");
+		
+		return formatted.toString();
 	}
 }

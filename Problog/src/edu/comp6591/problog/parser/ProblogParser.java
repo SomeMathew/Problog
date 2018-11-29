@@ -250,6 +250,12 @@ public final class ProblogParser {
 				sb.append(t.next());
 			} while (!t.peek().equals("."));
 		}
-		return Double.parseDouble(sb.toString());
+		
+		Double result = Double.parseDouble(sb.toString());
+		if (result < 0 || result > 1) {
+			throw new ProblogParseException("Probability \"" + result + "\" is out of bound.");
+		}
+		
+		return result;
 	}
 }

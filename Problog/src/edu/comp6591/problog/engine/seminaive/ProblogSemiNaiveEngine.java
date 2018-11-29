@@ -26,21 +26,25 @@ import edu.comp6591.problog.validation.IProblogProgram;
 import edu.comp6591.problog.validation.ProblogValidationException;
 
 public class ProblogSemiNaiveEngine extends ProblogEngineBase {
-	private IProblogProgram program;
-	private FactsRepository factsRepo;
 	private SetMultimap<Predicate, Clause> ruleIndex;
 	private MultisetHashMap<Atom, Double> valuationBags;
+
+	public ProblogSemiNaiveEngine(IProblogProgram program) {
+		super(program);
+		valuationBags = new MultisetHashMap<>();
+	}
 
 	@Override
 	public void init(IProblogProgram program) throws ProblogValidationException {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
-		this.program = program; // TODO probably change that to a constructor
+		
+		long start = System.currentTimeMillis();
 		buildRuleIndex(this.program.getRules());
-		valuationBags = new MultisetHashMap<>();
-
-		evaluate(); // TODO maybe return something ?
+		evaluate();
+		long end = System.currentTimeMillis();
+		stats.DurationMS = end - start;
 	}
 
 	private void buildRuleIndex(List<Clause> rules) {
@@ -56,6 +60,8 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 	private void evaluate() {
 		ImmutableMap<Atom, Double> edbFacts = initEDBFacts(program.getInitialFacts());
 		this.factsRepo = new FactsRepository(edbFacts);
+		this.stats.EDBSize = this.factsRepo.getAllFacts().size();
+		
 		Set<Atom> factsWithNewValuations = new HashSet<>(edbFacts.keySet());
 		Map<Clause, Double> ruleInstanceValuation = ImmutableMap.of();
 
@@ -64,7 +70,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 			Set<Atom> changedAtom = newRuleInstanceValuations.keySet().stream().map(Clause::getHead)
 					.collect(toImmutableSet());
 
-			Map<Atom, Double> newFactsValuation = computeNewValuations(changedAtom);
+			Map<Atom, Double> newFactsValuation = computeNewValuations(changedAtom, valuationBags);
 
 			factsWithNewValuations.clear();
 			for (Entry<Atom, Double> factEntry : newFactsValuation.entrySet()) {
@@ -78,16 +84,10 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 
 			// Keep iteration ground rule instance valuation
 			ruleInstanceValuation = newRuleInstanceValuations; // TODO double check that this is right
+			
+			stats.Iterations++;
 		}
-	}
-
-	private ImmutableMap<Atom, Double> computeNewValuations(Set<Atom> changedAtom) {
-		ImmutableMap.Builder<Atom, Double> newValuationBuilder = new ImmutableMap.Builder<Atom, Double>();
-		for (Atom atom : changedAtom) {
-			newValuationBuilder.put(atom, disjunction(valuationBags.get(atom)));
-		}
-		ImmutableMap<Atom, Double> newValuationMap = newValuationBuilder.build();
-		return newValuationMap;
+		this.stats.IDBSize = this.factsRepo.getAllFacts().size() - this.stats.EDBSize;
 	}
 
 	/**
@@ -130,16 +130,4 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 		}
 		return builder.build();
 	}
-
-	@Override
-	public Map<Atom, Double> getComputedDatabase() {
-		return factsRepo.getAllFacts();
-	}
-
-	@Override
-	public Set<Atom> query(Atom query) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Method stub");
-	}
-
 }

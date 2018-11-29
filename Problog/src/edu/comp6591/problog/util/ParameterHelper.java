@@ -2,7 +2,6 @@ package edu.comp6591.problog.util;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Provide methods to use as parameter function
@@ -34,16 +33,30 @@ public class ParameterHelper {
 	}
 
 	/**
-	 * Calculate product of probabilities.
+	 * Calculate maximum probability of list of clauses
 	 * 
-	 * This is a propagation function.
-	 * 
-	 * @param d1
-	 * @param d2
+	 * @param list
 	 * @return final certainty
 	 */
-	public static Double product(Double d1, Double d2) {
-		Double result = d1 * d2;
+	public static Double maximum(Collection<Double> list) {
+		return Collections.max(list);
+	}
+
+	/**
+	 * Calculate product of probabilities.
+	 * 
+	 * @param list
+	 * @return final certainty
+	 */
+	public static Double product(Collection<Double> list) {
+		if (list == null || list.isEmpty()) {
+			return new Double(0);
+		}
+		
+		double result = 1;
+		for (Double probability : list) {
+			result *= probability;
+		}
 		return result;
 	}
 }

@@ -20,8 +20,10 @@ import com.google.common.collect.ListMultimap;
  * Naive algorithm to process the Problog database
  */
 public class ProblogNaiveEngine extends ProblogEngineBase {
-	private IProblogProgram program;
-	private FactsRepository factsRepo;
+
+	public ProblogNaiveEngine(IProblogProgram program) {
+		super(program);
+	}
 
 	/**
 	 * Initialize the engine with a set of clauses and calculate fixpoint
@@ -34,24 +36,17 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 		if (program == null) {
 			throw new IllegalArgumentException("Program cannot be null");
 		}
-		this.program = program; // TODO probably change that to a constructor
-		evaluate(); // TODO maybe return something ?
-	}
-
-	/**
-	 * Browse the engine's database and return the result(s) of the given query
-	 * 
-	 * @param query
-	 * @return result(s)
-	 */
-	@Override
-	public Set<Atom> query(Atom query) { // TODO this need to be changed to a list??
-		throw new UnsupportedOperationException("ProblogNaiveEngine 'query' method not supported yet.");
+		
+		long start = System.currentTimeMillis();
+		evaluate();
+		long end = System.currentTimeMillis();
+		stats.DurationMS = end - start;
 	}
 
 	private void evaluate() {
 		this.factsRepo = new FactsRepository(initEDBFacts(program.getInitialFacts()));
-
+		this.stats.EDBSize = this.factsRepo.getAllFacts().size();
+		
 		Set<Atom> factsWithNewValuations = new HashSet<>();
 		do {
 			this.factsRepo.lock(); // Prevents inconsistent state, defensive measure.
@@ -66,8 +61,9 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 				}
 			}
 			factsRepo.putAllFactValuations(newFactsValuations);
-
+			stats.Iterations++;
 		} while (!factsWithNewValuations.isEmpty());
+		this.stats.IDBSize = this.factsRepo.getAllFacts().size() - this.stats.EDBSize;
 	}
 
 	/**
@@ -90,10 +86,4 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 		return combineGroundFacts(certaintyBags);
 	}
-
-	@Override
-	public Map<Atom, Double> getComputedDatabase() {
-		return factsRepo.getAllFacts();
-	}
-
 }
