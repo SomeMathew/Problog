@@ -59,43 +59,4 @@ public class ParameterHelper {
 		}
 		return result;
 	}
-
-	/**
-	 * Calculate sum of probabilities.
-	 * 
-	 * @param list
-	 * @return final certainty
-	 */
-	public static Double sum(Collection<Double> list) {
-		double result = 1;
-		for (Double probability : list) {
-			result += probability;
-		}
-		return result;
-	}
-
-	/**
-	 * Calculate average of probabilities.
-	 * 
-	 * @param list
-	 * @return final certainty
-	 */
-	public static Double average(Collection<Double> list) {
-		if (list == null || list.isEmpty()) {
-			return new Double(0);
-		}
-		return sum(list) / list.size();
-	}
-
-	/**
-	 * Calculate median of probabilities.
-	 * 
-	 * @param list
-	 * @return final certainty
-	 */
-	public static Double median(Collection<Double> list) {
-		double min = minimum(list);
-		double max = maximum(list);
-		return (max - min) / 2;
-	}
 }

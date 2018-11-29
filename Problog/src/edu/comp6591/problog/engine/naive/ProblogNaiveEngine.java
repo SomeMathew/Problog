@@ -45,7 +45,8 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 
 	private void evaluate() {
 		this.factsRepo = new FactsRepository(initEDBFacts(program.getInitialFacts()));
-
+		this.stats.EDBSize = this.factsRepo.getAllFacts().size();
+		
 		Set<Atom> factsWithNewValuations = new HashSet<>();
 		do {
 			this.factsRepo.lock(); // Prevents inconsistent state, defensive measure.
@@ -62,6 +63,7 @@ public class ProblogNaiveEngine extends ProblogEngineBase {
 			factsRepo.putAllFactValuations(newFactsValuations);
 			stats.Iterations++;
 		} while (!factsWithNewValuations.isEmpty());
+		this.stats.IDBSize = this.factsRepo.getAllFacts().size() - this.stats.EDBSize;
 	}
 
 	/**

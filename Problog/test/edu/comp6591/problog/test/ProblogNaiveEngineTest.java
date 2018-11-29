@@ -33,7 +33,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("No uncertainty:\n" + engine.getComputedDatabase().toString());
+		System.out.println("No uncertainty:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,X)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -50,7 +50,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Simple facts uncertainty:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Simple facts uncertainty:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -67,7 +67,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Simple rules uncertainty:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Simple rules uncertainty:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -84,7 +84,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Simple uncertainty:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Simple uncertainty:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -102,7 +102,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Duplicate facts:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Duplicate facts:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -120,7 +120,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Duplicate rules:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Duplicate rules:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -138,7 +138,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Cyclic facts:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Cyclic facts:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -156,7 +156,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Cyclic rules:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Cyclic rules:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -174,7 +174,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Multipath facts:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Multipath facts:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);
@@ -194,7 +194,7 @@ public class ProblogNaiveEngineTest {
 		validProgram = ASTHelper.getProgram(program);
 		engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 		engine.init(validProgram);
-		System.out.println("Multipath rules:\n" + engine.getComputedDatabase().toString());
+		System.out.println("Multipath rules:\n" + engine.getComputedDatabase().toString() + "\n" + engine.getStats().toString());
 		query = "ancestor(mary,daniel)?";
 		goal = ASTHelper.getGoal(query);
 		results = engine.query(goal);

@@ -3,6 +3,7 @@ package edu.comp6591.problog.util;
 import abcdatalog.parser.DatalogTokenizer;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.datastructure.Statistics;
 import edu.comp6591.problog.parser.ProblogParseException;
 import edu.comp6591.problog.parser.ProblogParser;
 import edu.comp6591.problog.validation.IProblogProgram;
@@ -56,5 +57,53 @@ public class ASTHelper {
 		DatalogTokenizer dt = new DatalogTokenizer(sr);
 
 		return ProblogParser.parseQuery(dt);
+	}
+	
+	/**
+	 * Convert collection of atoms with uncertainty to readable string
+	 * 
+	 * @param facts
+	 * @return facts as string
+	 */
+	public static String printFacts(Map<Atom, Double> facts) {
+		if (facts == null) {
+			return null;
+		}
+		
+		StringBuilder formatted = new StringBuilder();
+		
+		for (Map.Entry<Atom, Double> fact : facts.entrySet()) {
+			formatted.append(fact.getKey().toString())
+				.append(" : ")
+				.append(fact.getValue())
+				.append(".\n");
+		}
+		
+		return formatted.toString();
+	}
+	
+	/**
+	 * Convert statistics to readable string
+	 * 
+	 * @param stats
+	 * @return stats as string
+	 */
+	public static String printStatistics(Statistics stats) {
+		if (stats == null) {
+			return null;
+		}
+		
+		StringBuilder formatted = new StringBuilder();
+		formatted.append("STATISTICS\nExecution time (ms): ")
+			.append(stats.DurationMS)
+			.append("\nNumber of iterations: ")
+			.append(stats.Iterations)
+			.append("\nSize of EDB: ")
+			.append(stats.EDBSize)
+			.append("\nSize of IDB: ")
+			.append(stats.IDBSize)
+			.append("\n");
+		
+		return formatted.toString();
 	}
 }

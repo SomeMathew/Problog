@@ -60,6 +60,8 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 	private void evaluate() {
 		ImmutableMap<Atom, Double> edbFacts = initEDBFacts(program.getInitialFacts());
 		this.factsRepo = new FactsRepository(edbFacts);
+		this.stats.EDBSize = this.factsRepo.getAllFacts().size();
+		
 		Set<Atom> factsWithNewValuations = new HashSet<>(edbFacts.keySet());
 		Map<Clause, Double> ruleInstanceValuation = ImmutableMap.of();
 
@@ -85,6 +87,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 			
 			stats.Iterations++;
 		}
+		this.stats.IDBSize = this.factsRepo.getAllFacts().size() - this.stats.EDBSize;
 	}
 
 	/**

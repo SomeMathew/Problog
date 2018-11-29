@@ -1,9 +1,7 @@
 package edu.comp6591.problog;
 
 import edu.comp6591.problog.ast.Atom;
-import edu.comp6591.problog.datastructure.Statistics;
 import edu.comp6591.problog.engine.IProblogEngine;
-import edu.comp6591.problog.engine.ProblogEngineBase;
 import edu.comp6591.problog.engine.ProblogEngineFactory;
 import edu.comp6591.problog.util.FileHelper;
 import edu.comp6591.problog.validation.IProblogProgram;
@@ -29,32 +27,44 @@ public class Program {
 			ProblogEngineFactory.Mode flag = ProblogEngineFactory.parseMode(mode);
 			IProblogEngine engine = ProblogEngineFactory.createEngine(flag, program);
 			
-			System.out.println("Please enter the disjunction function (0 - default (independence), 1 - independence, 2 - minimum, 3 - maximum, 4 - product, 5 - sum, 6 - average, 7 - median):");
-			String disjunction = scan.nextLine();
-			Function<Collection<Double>, Double> disjunctionFcn = ProblogEngineFactory.parseParam(disjunction);
-			engine.setParameter(ProblogEngineFactory.Parameter.Disjunction, disjunctionFcn);
-			
-			System.out.println("Please enter the conjunction function (0 - default (minimum), 1 - independence, 2 - minimum, 3 - maximum, 4 - product, 5 - sum, 6 - average, 7 - median):");
-			String conjunction = scan.nextLine();
-			Function<Collection<Double>, Double> conjunctionFcn = ProblogEngineFactory.parseParam(conjunction);
-			engine.setParameter(ProblogEngineFactory.Parameter.Conjunction, conjunctionFcn);
-			
-			System.out.println("Please enter the propagation function (0 - default (product), 1 - independence, 2 - minimum, 3 - maximum, 4 - product, 5 - sum, 6 - average, 7 - median):");
-			String propagation = scan.nextLine();
-			Function<Collection<Double>, Double> propagationFcn = ProblogEngineFactory.parseParam(propagation);
-			engine.setParameter(ProblogEngineFactory.Parameter.Disjunction, propagationFcn);
+			System.out.println("Should the default parameter functions be overridden (yes/no)?");
+			String param = scan.nextLine();
+			switch (param.toLowerCase()) {
+				case "yes":
+				case "y":
+					System.out.println("Please enter the disjunction function (1 for independence, 2 for maximum):");
+					String disjunction = scan.nextLine();
+					Function<Collection<Double>, Double> disjunctionFcn = ProblogEngineFactory.parseParam(ProblogEngineFactory.Parameter.Disjunction, disjunction);
+					engine.setParameter(ProblogEngineFactory.Parameter.Disjunction, disjunctionFcn);
+
+					System.out.println("Please enter the conjunction function (1 for product, 2 for minimum):");
+					String conjunction = scan.nextLine();
+					Function<Collection<Double>, Double> conjunctionFcn = ProblogEngineFactory.parseParam(ProblogEngineFactory.Parameter.Conjunction, conjunction);
+					engine.setParameter(ProblogEngineFactory.Parameter.Conjunction, conjunctionFcn);
+
+					System.out.println("Please enter the propagation function (1 for product, 2 for minimum):");
+					String propagation = scan.nextLine();
+					Function<Collection<Double>, Double> propagationFcn = ProblogEngineFactory.parseParam(ProblogEngineFactory.Parameter.Propagation, propagation);
+					engine.setParameter(ProblogEngineFactory.Parameter.Propagation, propagationFcn);
+					break;
+			}
 			
 			engine.init(program);
-			System.out.println("The data is processed and ready to use. (" + engine.getStats().DurationMS + " ms)");
+			System.out.println("The data is processed and ready to use.");
+			System.out.println(ASTHelper.printStatistics(engine.getStats()));
 			
-			System.out.println("Please enter the path of the output file to store the processed database (or 0 to skip):");
+			System.out.println("Please enter the path of the output file to store the processed database (or 0 to skip, or 1 to print to console):");
 			String output = scan.nextLine();
 			switch (output)
 			{
 				case "0":
 					break;
+				case "1":
+					System.out.println(ASTHelper.printFacts(engine.getComputedDatabase()));
+					break;
 				default:
-					// TODO: WRITE TO FILE STATS + COMPUTED DATABASE
+					FileHelper.setFile(output, 
+						ASTHelper.printStatistics(engine.getStats()) + "\n" + ASTHelper.printFacts(engine.getComputedDatabase()));
 					break;
 			}
 			
@@ -67,9 +77,9 @@ public class Program {
 
 					if (results != null && !results.isEmpty()) {
 						System.out.println("Your result(s):");
-						results.entrySet().forEach(System.out::println);
+						System.out.println(ASTHelper.printFacts(results));
 					} else {
-						System.out.println("No result match your query.");
+						System.out.println("No result matches your query.");
 					}
 				} catch (Exception ex) {
 					System.out.println(ex.getMessage());
