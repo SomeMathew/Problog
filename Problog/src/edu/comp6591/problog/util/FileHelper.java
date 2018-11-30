@@ -28,7 +28,7 @@ public class FileHelper {
 			String line = br.readLine();
 			while (line != null)
 			{
-				content.append(line);
+				content.append(line.split("%")[0]);
 				line = br.readLine();
 			}
 		}
