@@ -55,7 +55,7 @@ public class CandidateTupleGeneratorSemiNaive implements ICandidateTupleGenerato
                     ImmutableList.copyOf(restrictSet),
                     ImmutableList.copyOf(Sets.difference(candidateFacts, restrictSet)));
             factsAnnotated.add(annotatedList);
-
+            annotatedList.setTypeChangeListener(this::typeChangeListener);
             if (!restrictSet.isEmpty()) {
                 typeAInNextTuple++;
             }
@@ -90,6 +90,8 @@ public class CandidateTupleGeneratorSemiNaive implements ICandidateTupleGenerato
             for (int i = 0; i < this.size; i++) {
                 builder.add(factsAnnotated.get(i).getCurrent());
             }
+            assert factsAnnotated.stream().anyMatch((list) -> list
+                    .getCurrentAnnotation() == Annotation.TYPE_A) : "A tuple was generated without a restricted atom.";
             prepareNext();
         }
         return builder.build();
@@ -111,20 +113,49 @@ public class CandidateTupleGeneratorSemiNaive implements ICandidateTupleGenerato
             i = size - 1;
         }
 
-        // Go back in the list until the position has tuples left
-        while (i >= 0 && !factsAnnotated.get(i).incrementIfHasNext()) {
-            // Reset the list
-            factsAnnotated.get(i).reset();
-            i--;
+//        // Go back in the list until the position has tuples left
+//        while (i >= 0 && !factsAnnotated.get(i).incrementIfHasNext()) {
+//            // Reset the list
+//            factsAnnotated.get(i).reset();
+//            i--;
+//        }
+//        
+//        // We also need to go back in the list if there are now no more type A
+//        while (i >= 0 && typeAInNextTuple == 0) {
+//            // Reset the list
+//            factsAnnotated.get(i).reset();
+//            i--;
+//        }
+
+        while (true) {
+            if (i < 0) {
+                break;
+            }
+            long saveTypeACount = typeAInNextTuple;
+            boolean hasNext = factsAnnotated.get(i).incrementIfHasNext();
+            if (!hasNext) {
+                factsAnnotated.get(i).reset();
+                i--;
+            } else if (hasNext && typeAInNextTuple == 0) {
+                if (saveTypeACount == typeAInNextTuple)
+                    System.out
+                            .println(Strings.lenientFormat("before: %s, after: %s", saveTypeACount, typeAInNextTuple));
+                factsAnnotated.get(i).reset();
+                i--;
+            } else {
+                break;
+            }
         }
 
         // We're done here if we went through all possible tuples or all possible tuples
         // with restriction.
-        assert typeAInNextTuple >= 0 : Strings.lenientFormat("Invariant error: typeAInNextTuple is negative. Value: ",
-                typeAInNextTuple);
-        if (i < 0 || typeAInNextTuple == 0) {
+        if (i < 0) {
             this.done = true;
-            return;
+        } else {
+            for (int k = i + 1; k < size; k++) {
+                factsAnnotated.get(k).reset();
+            }
+            this.done = typeAInNextTuple == 0;
         }
     }
 
@@ -137,5 +168,7 @@ public class CandidateTupleGeneratorSemiNaive implements ICandidateTupleGenerato
         } else {
             typeAInNextTuple++;
         }
+        assert typeAInNextTuple >= 0 : Strings.lenientFormat("Invariant error: typeAInNextTuple is negative. Value: ",
+                typeAInNextTuple);
     }
 }
