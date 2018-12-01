@@ -10,17 +10,17 @@ import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.ITerm;
 import edu.comp6591.problog.ast.TermVisitor;
-import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
 import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.datastructure.ICandidateTupleGenerator;
 
 public abstract class ProblogClauseEvaluator {
-	private CandidateTupleGenerator generator;
+	private ICandidateTupleGenerator generator;
 	private boolean evaluated;
 
 	protected Clause rule;
 	protected FactsRepository factsRepo;
 
-	protected ProblogClauseEvaluator(Clause rule, FactsRepository factsRepo, CandidateTupleGenerator generator) {
+	protected ProblogClauseEvaluator(Clause rule, FactsRepository factsRepo, ICandidateTupleGenerator generator) {
 		this.rule = rule;
 		this.factsRepo = factsRepo;
 		this.generator = generator;

@@ -18,8 +18,9 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.Predicate;
-import edu.comp6591.problog.datastructure.CandidateTupleGenerator;
+import edu.comp6591.problog.datastructure.CandidateTupleGeneratorSemiNaive;
 import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.datastructure.ICandidateTupleGenerator;
 import edu.comp6591.problog.datastructure.MultisetHashMap;
 import edu.comp6591.problog.engine.ProblogEngineBase;
 import edu.comp6591.problog.validation.IProblogProgram;
@@ -103,7 +104,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 		Map<Clause, Double> newRuleInstanceValuations = new HashMap<>();
 
 		for (Clause rule : candidateRules) {
-			CandidateTupleGenerator generator = new CandidateTupleGenerator(rule, factsRepo, newFactsIndex);
+			ICandidateTupleGenerator generator = new CandidateTupleGeneratorSemiNaive(rule, factsRepo, newFactsIndex);
 			ProblogSemiNaiveClauseEvaluator evaluator = new ProblogSemiNaiveClauseEvaluator(rule, factsRepo, generator,
 					valuationBags, ruleInstanceValuations);
 			evaluator.evaluate();
