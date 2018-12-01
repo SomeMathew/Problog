@@ -1,0 +1,51 @@
+Running edu.comp6591.problog.benchmark.ProblogNaiveEngineBenchmark
+clique100_0.5.pl
+Execution time (ms): 1491578, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique100_1.0.pl
+Execution time (ms): 1448505, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique100_var.pl
+Execution time (ms): 1448243, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique10_0.5.pl
+Execution time (ms): 219, Number of iterations: 65, Size of EDB: 12, Size of IDB: 138
+clique10_1.0.pl
+Execution time (ms): 15, Number of iterations: 11, Size of EDB: 12, Size of IDB: 138
+clique10_var.pl
+Execution time (ms): 156, Number of iterations: 51, Size of EDB: 12, Size of IDB: 138
+graph100_0.5.pl
+Execution time (ms): 21772, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph100_1.0.pl
+Execution time (ms): 21888, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph100_var.pl
+Execution time (ms): 21867, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph10_0.5.pl
+Execution time (ms): 31, Number of iterations: 56, Size of EDB: 11, Size of IDB: 121
+graph10_1.0.pl
+Execution time (ms): 0, Number of iterations: 12, Size of EDB: 11, Size of IDB: 121
+graph10_var.pl
+Execution time (ms): 16, Number of iterations: 56, Size of EDB: 11, Size of IDB: 121
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4,562.525 sec
+
+Running edu.comp6591.problog.benchmark.ProblogSemiNaiveEngineBenchmark
+clique100_0.5.pl
+Execution time (ms): 1385874, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique100_1.0.pl
+Execution time (ms): 1376774, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique100_var.pl
+Execution time (ms): 1375207, Number of iterations: 103, Size of EDB: 101, Size of IDB: 20402
+clique10_0.5.pl
+Execution time (ms): 203, Number of iterations: 66, Size of EDB: 12, Size of IDB: 138
+clique10_1.0.pl
+Execution time (ms): 16, Number of iterations: 11, Size of EDB: 12, Size of IDB: 138
+graph100_0.5.pl
+Execution time (ms): 24175, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph100_1.0.pl
+Execution time (ms): 22956, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph100_var.pl
+Execution time (ms): 23404, Number of iterations: 102, Size of EDB: 101, Size of IDB: 10201
+graph10_0.5.pl
+Execution time (ms): 47, Number of iterations: 56, Size of EDB: 11, Size of IDB: 121
+graph10_1.0.pl
+Execution time (ms): 0, Number of iterations: 12, Size of EDB: 11, Size of IDB: 121
+graph10_var.pl
+Execution time (ms): 31, Number of iterations: 56, Size of EDB: 11, Size of IDB: 121
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1
