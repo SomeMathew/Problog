@@ -64,7 +64,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 		this.stats.EDBSize = this.factsRepo.getAllFacts().size();
 		
 		Set<Atom> factsWithNewValuations = new HashSet<>(edbFacts.keySet());
-		Map<Clause, Double> ruleInstanceValuation = ImmutableMap.of();
+		Map<Clause, Double> ruleInstanceValuation = new HashMap<>();
 
 		while (!factsWithNewValuations.isEmpty()) {
 			Map<Clause, Double> newRuleInstanceValuations = infer(factsWithNewValuations, ruleInstanceValuation);
@@ -84,7 +84,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 			factsRepo.putAllFactValuations(newFactsValuation);
 
 			// Keep iteration ground rule instance valuation
-			ruleInstanceValuation = newRuleInstanceValuations; // TODO double check that this is right
+			ruleInstanceValuation.putAll(newRuleInstanceValuations); // TODO double check that this is right
 			
 			stats.Iterations++;
 		}
