@@ -13,13 +13,15 @@ import java.util.function.Function;
  * Interface exposing methods for the different Problog engines
  */
 public interface IProblogEngine {
+	void setThreshold(double threshold);
+	
 	void setParameter(ProblogEngineFactory.Parameter param, Function<Collection<Double>, Double> function);
 	
 	void init(IProblogProgram program) throws ProblogValidationException;
 
 	Map<Atom, Double> getComputedDatabase();
-
-	Map<Atom, Double> query(Atom query);
 	
 	Statistics getStats();
+
+	Map<Atom, Double> query(Atom query);
 }

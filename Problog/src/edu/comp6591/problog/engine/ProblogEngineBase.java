@@ -37,6 +37,7 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	protected IProblogProgram program;
 	protected FactsRepository factsRepo;
 	protected Statistics stats;
+	protected double threshold;
 	
 	public ProblogEngineBase(IProblogProgram program)
 	{
@@ -74,7 +75,17 @@ public abstract class ProblogEngineBase implements IProblogEngine {
 	public static Double propagation(Double bodyCertainty, Double ruleCertainty) {
 		return propagationParam.apply(Arrays.asList(bodyCertainty, ruleCertainty));
 	}
-
+	
+	/**
+	 * Set the change detection threshold
+	 * 
+	 * @param threshold 
+	 */
+	@Override
+	public void setThreshold(double threshold) {
+		this.threshold = threshold;
+	}
+	
 	/**
 	 * Set the parameter function
 	 * 

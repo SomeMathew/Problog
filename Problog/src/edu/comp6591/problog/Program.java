@@ -49,14 +49,17 @@ public class Program {
 					break;
 			}
 			
+			System.out.println("Please enter the change detection threshold (e.g. 0.5, 0.1, 0.000001, or 0 for no threshold):");
+			String threshold = scan.nextLine();
+			engine.setThreshold(Double.parseDouble(threshold));
+			
 			engine.init(program);
 			System.out.println("The data is processed and ready to use.");
 			System.out.println(ASTHelper.printStatistics(engine.getStats()));
 			
 			System.out.println("Please enter the path of the output file to store the processed database (or 0 to skip, or 1 to print to console):");
 			String output = scan.nextLine();
-			switch (output)
-			{
+			switch (output) {
 				case "0":
 					break;
 				case "1":
