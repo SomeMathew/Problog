@@ -76,7 +76,7 @@ public class ProblogSemiNaiveEngine extends ProblogEngineBase {
 			factsWithNewValuations.clear();
 			for (Entry<Atom, Double> factEntry : newFactsValuation.entrySet()) {
 				Double oldValue = factsRepo.getValuation(factEntry.getKey());
-				if (oldValue == null || factEntry.getValue() > oldValue) {
+				if (oldValue == null || factEntry.getValue() - oldValue > threshold) {
 					factsWithNewValuations.add(factEntry.getKey());
 				}
 			}
