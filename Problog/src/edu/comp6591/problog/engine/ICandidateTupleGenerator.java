@@ -1,4 +1,4 @@
-package edu.comp6591.problog.datastructure;
+package edu.comp6591.problog.engine;
 
 import java.util.List;
 

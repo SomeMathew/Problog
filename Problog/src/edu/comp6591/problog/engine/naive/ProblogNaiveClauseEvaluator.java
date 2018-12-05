@@ -8,7 +8,7 @@ import com.google.common.collect.ListMultimap;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.datastructure.FactsRepository;
-import edu.comp6591.problog.datastructure.ICandidateTupleGenerator;
+import edu.comp6591.problog.engine.ICandidateTupleGenerator;
 import edu.comp6591.problog.engine.ProblogClauseEvaluator;
 
 public class ProblogNaiveClauseEvaluator extends ProblogClauseEvaluator {

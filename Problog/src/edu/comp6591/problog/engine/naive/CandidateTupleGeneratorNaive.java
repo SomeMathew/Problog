@@ -1,4 +1,4 @@
-package edu.comp6591.problog.datastructure;
+package edu.comp6591.problog.engine.naive;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +8,9 @@ import com.google.common.collect.ImmutableList;
 
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
+import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.engine.ICandidateTupleGenerator;
+import edu.comp6591.problog.datastructure.MutableInteger;
 
 public class CandidateTupleGeneratorNaive implements ICandidateTupleGenerator {
     private List<List<Atom>> facts;

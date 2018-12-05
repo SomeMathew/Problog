@@ -1,4 +1,4 @@
-package edu.comp6591.problog.datastructure;
+package edu.comp6591.problog.engine.seminaive;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -15,7 +15,10 @@ import static com.google.common.base.Verify.*;
 import edu.comp6591.problog.ast.Atom;
 import edu.comp6591.problog.ast.Clause;
 import edu.comp6591.problog.ast.Predicate;
+import edu.comp6591.problog.datastructure.AnnotatedDualListHelper;
 import edu.comp6591.problog.datastructure.AnnotatedDualListHelper.Annotation;
+import edu.comp6591.problog.datastructure.FactsRepository;
+import edu.comp6591.problog.engine.ICandidateTupleGenerator;
 
 public class CandidateTupleGeneratorSemiNaive implements ICandidateTupleGenerator {
     private List<AnnotatedDualListHelper<Atom>> factsAnnotated;
