@@ -38,7 +38,6 @@ public class ProblogNaiveEngineBenchmark {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
 			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
-			engine.setThreshold(0.001);
 			engine.init(validProgram);
 			System.out.println("Default - " + benchmark.getName() +"\n" + engine.getStats());
 			FileHelper.setFile(".\\Benchmark\\output\\" + benchmark.getName().replace(".pl", "_naive.pl"), 
@@ -56,15 +55,14 @@ public class ProblogNaiveEngineBenchmark {
 		for (int i = 0; i < threshold; i++) {
 			program = FileHelper.getFile(".\\TestPrograms\\easyLoop.problog");
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.init(validProgram);
 		}
 		
 		for (File benchmark : list) {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.setParameter(ProblogEngineFactory.Parameter.Disjunction, ParameterHelper::maximum);
 			engine.init(validProgram);
 			System.out.println("Disjunction - " + benchmark.getName() +"\n" + engine.getStats());
@@ -83,15 +81,14 @@ public class ProblogNaiveEngineBenchmark {
 		for (int i = 0; i < threshold; i++) {
 			program = FileHelper.getFile(".\\TestPrograms\\easyLoop.problog");
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.init(validProgram);
 		}
 		
 		for (File benchmark : list) {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.setParameter(ProblogEngineFactory.Parameter.Conjunction, ParameterHelper::product);
 			engine.init(validProgram);
 			System.out.println("Conjunction - " + benchmark.getName() +"\n" + engine.getStats());
@@ -110,15 +107,14 @@ public class ProblogNaiveEngineBenchmark {
 		for (int i = 0; i < threshold; i++) {
 			program = FileHelper.getFile(".\\TestPrograms\\easyLoop.problog");
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.init(validProgram);
 		}
 		
 		for (File benchmark : list) {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
-			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
+			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.Naive, validProgram);
 			engine.setParameter(ProblogEngineFactory.Parameter.Propagation, ParameterHelper::minimum);
 			engine.init(validProgram);
 			System.out.println("Propagation - " + benchmark.getName() +"\n" + engine.getStats());

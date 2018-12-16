@@ -38,7 +38,6 @@ public class ProblogSemiNaiveEngineBenchmark {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
 			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
 			engine.init(validProgram);
 			System.out.println("Default - " + benchmark.getName() +"\n" + engine.getStats());
 			FileHelper.setFile(".\\Benchmark\\output\\" + benchmark.getName().replace(".pl", "_seminaive.pl"), 
@@ -64,7 +63,6 @@ public class ProblogSemiNaiveEngineBenchmark {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
 			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
 			engine.setParameter(ProblogEngineFactory.Parameter.Disjunction, ParameterHelper::maximum);
 			engine.init(validProgram);
 			System.out.println("Disjunction - " + benchmark.getName() +"\n" + engine.getStats());
@@ -91,7 +89,6 @@ public class ProblogSemiNaiveEngineBenchmark {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
 			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
 			engine.setParameter(ProblogEngineFactory.Parameter.Conjunction, ParameterHelper::product);
 			engine.init(validProgram);
 			System.out.println("Conjunction - " + benchmark.getName() +"\n" + engine.getStats());
@@ -118,7 +115,6 @@ public class ProblogSemiNaiveEngineBenchmark {
 			program = FileHelper.getFile(benchmark.getPath());
 			validProgram = ASTHelper.getProgram(program);
 			engine = ProblogEngineFactory.createEngine(ProblogEngineFactory.Mode.SemiNaive, validProgram);
-			engine.setThreshold(0.001);
 			engine.setParameter(ProblogEngineFactory.Parameter.Propagation, ParameterHelper::minimum);
 			engine.init(validProgram);
 			System.out.println("Propagation - " + benchmark.getName() +"\n" + engine.getStats());
