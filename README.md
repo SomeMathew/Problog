@@ -17,4 +17,5 @@ The system takes as its input an extended Datalog program with rules and facts o
 The system will present a computed IDB and EDB following the evaluation of the program.
 
 
+## Reference
 [1] Laks V.S. Lakshmanan, Nematollaah Shiri, "A Parametric Approach to Deductive Databases with Uncertainty," IEEE Transactions on Knowledge and Data Engineering, vol. 13, 2001.
